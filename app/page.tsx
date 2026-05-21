@@ -394,9 +394,23 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold">
-              ConnectHub
-            </h1>
+          <div className="flex items-center gap-4">
+  <img
+    src="/icon-192.png"
+    alt="Logo"
+    className="w-16 h-16 rounded-2xl"
+  />
+
+  <div>
+    <h1 className="text-3xl font-bold">
+      Freie Musikschule
+    </h1>
+
+    <p className="text-gray-400">
+      Bad Soden e.V.
+    </p>
+  </div>
+</div>
 
             <p className="text-gray-400">
               {user.email}
