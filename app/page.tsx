@@ -423,7 +423,7 @@ export default function Home() {
 
           <button
             onClick={logout}
-            className="bg-red-600 px-4 py-2 rounded-xl mt-8"
+            className="bg-red-600 px-4 py-2 rounded-xl mt-11"
           >
             Logout
           </button>
