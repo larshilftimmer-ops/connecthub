@@ -429,11 +429,11 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 p-3 flex justify-around z-50">
+        <div className="fixed bottom-4 left-4 right-4 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-3 flex justify-around">
 
   <button
     onClick={() => setActivePage("dashboard")}
-    className="flex flex-col items-center text-sm"
+    className="flex flex-col items-center text-xs text-gray-300 hover:text-white transition"
   >
     🏠
     <span>Home</span>
