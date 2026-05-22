@@ -517,7 +517,7 @@ export default function Home() {
 </div>
 
         {activePage === "chat" && (
-          <section className="space-y-6">
+          <section className="space-y-6 w-full max-w-full overflow-x-hidden">
             <div className="bg-zinc-900 rounded-3xl p-6 shadow-xl w-auto">
               <h2 className="text-2xl font-bold mb-4">
                 Gruppen
@@ -726,7 +726,7 @@ export default function Home() {
               })}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <div className="bg-zinc-800 p-4 rounded-2xl">
                 <h3 className="text-xl font-bold mb-4">
                   Termin hinzufügen
