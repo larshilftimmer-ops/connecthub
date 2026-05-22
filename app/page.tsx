@@ -584,7 +584,7 @@ export default function Home() {
                 {selectedGroup}
               </h2>
 
-              <div className="flex gap-2 mb-6">
+              <div className="flex flex-col gap-3 mb-6">
                 <input
                   value={message}
                   onChange={(e) =>
@@ -596,7 +596,7 @@ export default function Home() {
 
                 <button
                   onClick={sendMessage}
-                  className="bg-blue-600 px-6 rounded-xl"
+                  className="bg-blue-600 py-3 rounded-xl w-full"
                 >
                   Senden
                 </button>
