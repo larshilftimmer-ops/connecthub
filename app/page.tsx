@@ -472,17 +472,23 @@ export default function Home() {
   </button>
 </div>
 
-        {activePage === "dashboard" && (
-          <section className="bg-zinc-900 rounded-2xl p-6">
-            <h2 className="text-2xl font-bold mb-2">
-              Dashboard
-            </h2>
+<div className="flex items-center gap-4">
+  <img
+    src="/icon-192.png"
+    alt="Logo"
+    className="w-16 h-16 rounded-2xl"
+  />
 
-            <p className="text-gray-400">
-              Willkommen bei ConnectHub.
-            </p>
-          </section>
-        )}
+  <div>
+    <h1 className="text-3xl font-bold">
+      Freie Musikschule
+    </h1>
+
+    <p className="text-gray-400">
+      Bad Soden e.V.
+    </p>
+  </div>
+</div>
 
         {activePage === "chat" && (
           <section className="grid md:grid-cols-4 gap-6">
