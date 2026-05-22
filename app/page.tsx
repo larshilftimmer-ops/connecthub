@@ -517,8 +517,8 @@ export default function Home() {
 </div>
 
         {activePage === "chat" && (
-          <section className="grid md:grid-cols-4 gap-6">
-            <div className="bg-zinc-900 p-4 rounded-2xl">
+          <section className="space-y-6">
+            <div className="bg-zinc-900 rounded-3xl p-6 shadow-xl w-full">
               <h2 className="text-2xl font-bold mb-4">
                 Gruppen
               </h2>
