@@ -450,14 +450,15 @@ export default function Home() {
             <p className="text-green-400">
               Rolle: admin
             </p>
-          </div>
-
-          <button
+            <button
             onClick={logout}
             className="bg-red-600 px-4 py-2 rounded-xl mt-12"
           >
             Logout
           </button>
+          </div>
+
+          
         </div>
 
         <div className="fixed bottom-4 left-4 right-4 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-3 flex justify-around">
