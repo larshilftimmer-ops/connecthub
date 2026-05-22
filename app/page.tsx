@@ -842,7 +842,8 @@ export default function Home() {
               Link-System kommt als Nächstes.
             </p>
           </section>
-    )}
-    </div>
-    </main>
-  );
+   )}
+   </div>
+ </main>
+ );
+ }
