@@ -470,7 +470,6 @@ export default function Home() {
           >
             Logout
           </button>
-          </div>
 </>
 )}
           
