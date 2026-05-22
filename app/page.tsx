@@ -425,19 +425,28 @@ export default function Home() {
 <p className="text-gray-400 text-sm">Daten bearbeiten</p>
 </button>
 
-<button className="bg-zinc-900 p-5 rounded-3xl text-left">
+<button
+  onClick={() => setActivePage("courses")}
+  className="bg-zinc-900 p-5 rounded-3xl text-left"
+>
 <div className="text-3xl mb-2">🎵</div>
 <h3 className="font-bold">Kurse</h3>
 <p className="text-gray-400 text-sm">Musikkurse ansehen</p>
 </button>
 
-<button className="bg-zinc-900 p-5 rounded-3xl text-left">
+<button
+  onClick={() => setActivePage("schedule")}
+  className="bg-zinc-900 p-5 rounded-3xl text-left"
+>
 <div className="text-3xl mb-2">📅</div>
 <h3 className="font-bold">Stundenplan</h3>
 <p className="text-gray-400 text-sm">Unterricht & Termine</p>
 </button>
 
-<button className="bg-zinc-900 p-5 rounded-3xl text-left">
+<button
+  onClick={() => setActivePage("instruments")}
+  className="bg-zinc-900 p-5 rounded-3xl text-left"
+>
 <div className="text-3xl mb-2">🎹</div>
 <h3 className="font-bold">Instrumente</h3>
 <p className="text-gray-400 text-sm">Infos & Räume</p>
