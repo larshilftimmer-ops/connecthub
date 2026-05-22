@@ -843,5 +843,6 @@ export default function Home() {
             </p>
           </section>
     )}
+    </div>
     </main>
   );
