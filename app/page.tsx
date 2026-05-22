@@ -416,7 +416,10 @@ export default function Home() {
           {activePage === "dashboard" && (
 <div className="grid grid-cols-2 gap-4 mt-8">
 
-<button className="bg-zinc-900 p-5 rounded-3xl text-left">
+<button
+  onClick={() => setActivePage("profile")}
+  className="bg-zinc-900 p-5 rounded-3xl text-left"
+>
 <div className="text-3xl mb-2">👤</div>
 <h3 className="font-bold">Profil</h3>
 <p className="text-gray-400 text-sm">Daten bearbeiten</p>
