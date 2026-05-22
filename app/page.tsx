@@ -518,7 +518,7 @@ export default function Home() {
 
         {activePage === "chat" && (
           <section className="space-y-6">
-            <div className="bg-zinc-900 rounded-3xl p-6 shadow-xl w-full">
+            <div className="bg-zinc-900 rounded-3xl p-6 shadow-xl w-auto">
               <h2 className="text-2xl font-bold mb-4">
                 Gruppen
               </h2>
