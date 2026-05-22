@@ -395,31 +395,35 @@ export default function Home() {
         <div className="flex justify-between items-center mb-8">
           <div>
      
-          <div className="grid grid-cols-2 gap-4 mt-8">
-  <button className="bg-zinc-900 p-5 rounded-3xl text-left">
-    <div className="text-3xl mb-2">👤</div>
-    <h3 className="font-bold">Profil</h3>
-    <p className="text-gray-400 text-sm">Daten bearbeiten</p>
-  </button>
+          {activePage === "dashboard" && (
+<div className="grid grid-cols-2 gap-4 mt-8">
 
-  <button className="bg-zinc-900 p-5 rounded-3xl text-left">
-    <div className="text-3xl mb-2">📅</div>
-    <h3 className="font-bold">Termine</h3>
-    <p className="text-gray-400 text-sm">Kalender öffnen</p>
-  </button>
+<button className="bg-zinc-900 p-5 rounded-3xl text-left">
+<div className="text-3xl mb-2">👤</div>
+<h3 className="font-bold">Profil</h3>
+<p className="text-gray-400 text-sm">Daten bearbeiten</p>
+</button>
 
-  <button className="bg-zinc-900 p-5 rounded-3xl text-left">
-    <div className="text-3xl mb-2">💬</div>
-    <h3 className="font-bold">Chat</h3>
-    <p className="text-gray-400 text-sm">Nachrichten</p>
-  </button>
+<button className="bg-zinc-900 p-5 rounded-3xl text-left">
+<div className="text-3xl mb-2">🎵</div>
+<h3 className="font-bold">Kurse</h3>
+<p className="text-gray-400 text-sm">Musikkurse ansehen</p>
+</button>
 
-  <button className="bg-zinc-900 p-5 rounded-3xl text-left">
-    <div className="text-3xl mb-2">📰</div>
-    <h3 className="font-bold">News</h3>
-    <p className="text-gray-400 text-sm">Aktuelles</p>
-  </button>
+<button className="bg-zinc-900 p-5 rounded-3xl text-left">
+<div className="text-3xl mb-2">📅</div>
+<h3 className="font-bold">Stundenplan</h3>
+<p className="text-gray-400 text-sm">Unterricht & Termine</p>
+</button>
+
+<button className="bg-zinc-900 p-5 rounded-3xl text-left">
+<div className="text-3xl mb-2">🎹</div>
+<h3 className="font-bold">Instrumente</h3>
+<p className="text-gray-400 text-sm">Infos & Räume</p>
+</button>
+
 </div>
+)}
 
             <p className="text-gray-400">
               {user.email}
