@@ -394,22 +394,31 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-          <div className="flex items-center gap-4">
-  <img
-    src="/icon-192.png"
-    alt="Logo"
-    className="w-16 h-16 rounded-2xl"
-  />
+     
+          <div className="grid grid-cols-2 gap-4 mt-8">
+  <button className="bg-zinc-900 p-5 rounded-3xl text-left">
+    <div className="text-3xl mb-2">👤</div>
+    <h3 className="font-bold">Profil</h3>
+    <p className="text-gray-400 text-sm">Daten bearbeiten</p>
+  </button>
 
-  <div>
-    <h1 className="text-3xl font-bold">
-      Freie Musikschule
-    </h1>
+  <button className="bg-zinc-900 p-5 rounded-3xl text-left">
+    <div className="text-3xl mb-2">📅</div>
+    <h3 className="font-bold">Termine</h3>
+    <p className="text-gray-400 text-sm">Kalender öffnen</p>
+  </button>
 
-    <p className="text-gray-400">
-      Bad Soden e.V.
-    </p>
-  </div>
+  <button className="bg-zinc-900 p-5 rounded-3xl text-left">
+    <div className="text-3xl mb-2">💬</div>
+    <h3 className="font-bold">Chat</h3>
+    <p className="text-gray-400 text-sm">Nachrichten</p>
+  </button>
+
+  <button className="bg-zinc-900 p-5 rounded-3xl text-left">
+    <div className="text-3xl mb-2">📰</div>
+    <h3 className="font-bold">News</h3>
+    <p className="text-gray-400 text-sm">Aktuelles</p>
+  </button>
 </div>
 
             <p className="text-gray-400">
