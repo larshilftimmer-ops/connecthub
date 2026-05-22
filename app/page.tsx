@@ -394,7 +394,9 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-     
+
+{activePage === "dashboard" && (
+  <>
           <div className="flex items-center gap-4">
   <img
     src="/icon-192.png"
@@ -469,7 +471,8 @@ export default function Home() {
             Logout
           </button>
           </div>
-
+</>
+)}
           
         </div>
 
