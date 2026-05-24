@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./supabase";
+import Dashboard from "./components/Dashboard";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -396,7 +397,7 @@ export default function Home() {
           <div>
 
 {activePage === "dashboard" && (
-  <>
+  
           <div className="flex items-center gap-4">
   <img
     src="/icon-192.png"
@@ -842,7 +843,6 @@ export default function Home() {
               Link-System kommt als Nächstes.
             </p>
           </section>
-   )}
    </div>
  </main>
  );
