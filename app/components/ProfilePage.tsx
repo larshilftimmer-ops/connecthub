@@ -29,7 +29,7 @@ export default function ProfilePage({ user }: Props) {
       setPhone(data.phone || "");
       setInstrument(data.instrument || "");
     }
-  }
+  
 
   async function saveProfile() {
     const { error } = await supabase
@@ -45,6 +45,11 @@ export default function ProfilePage({ user }: Props) {
       alert("Profil konnte nicht gespeichert werden.");
       return;
     }
+
+    alert("Profil gespeichert.");
+}
+
+  }
 
     async function changePassword() {
         if (!newPassword.trim()) {
@@ -66,8 +71,7 @@ export default function ProfilePage({ user }: Props) {
         alert("Passwort geändert.");
       }
 
-    alert("Profil gespeichert.");
-  }
+    
 
   return (
     <section className="bg-zinc-900 rounded-2xl p-6">
