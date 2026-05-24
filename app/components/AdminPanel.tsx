@@ -58,6 +58,9 @@ export default function AdminPanel() {
           <h3 className="text-xl font-bold mb-4">
             Benutzerverwaltung
           </h3>
+          <p className="text-gray-400 mb-4">
+            Gefundene Benutzer: {users.length}
+            </p>
 
           <div className="space-y-3">
             {users.map((user) => (
