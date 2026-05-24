@@ -7,6 +7,7 @@ import BottomNav from "./components/BottomNav";
 import ChatPage from "./components/ChatPage";
 import CalendarPage from "./components/CalendarPage";
 import NewsPage from "./components/NewsPage";
+import LinksPage from "./components/LinksPage";
 
 
 export default function Home() {
@@ -450,16 +451,8 @@ export default function Home() {
   <NewsPage news={news} />
 )}
         {activePage === "links" && (
-          <section className="bg-zinc-900 rounded-2xl p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              Externe Links
-            </h2>
-
-            <p className="text-gray-400">
-              Link-System kommt als Nächstes.
-            </p>
-          </section>
-        )}
+  <LinksPage />
+)}
 
    </div>
  </main>
