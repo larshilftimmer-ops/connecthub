@@ -8,6 +8,7 @@ import ChatPage from "./components/ChatPage";
 import CalendarPage from "./components/CalendarPage";
 import NewsPage from "./components/NewsPage";
 import LinksPage from "./components/LinksPage";
+import ProfilePage from "./components/ProfilePage";
 
 
 export default function Home() {
@@ -445,6 +446,10 @@ export default function Home() {
     createEvent={createEvent}
     events={events}
   />
+)}
+
+{activePage === "profile" && (
+  <ProfilePage user={user} />
 )}
 
 {activePage === "news" && (
