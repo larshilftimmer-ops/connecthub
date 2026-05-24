@@ -11,7 +11,7 @@ import LinksPage from "./components/LinksPage";
 import ProfilePage from "./components/ProfilePage";
 import CoursesPage from "./components/CoursePage";
 import SchedulePage from "./components/SchedulePage";
-import InstrumentsPage from "./components/IntrumentsPage";
+import InstrumentsPage from "./components/InstrumentsPage";
 
 
 
