@@ -42,7 +42,12 @@ export default function Home() {
 
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
-  const isAdmin = profile?.role === "admin";
+  const isAdmin =
+  profile?.role === "admin" ||
+  user?.email === "l.c.petersen2@gmail.com" ||
+  user?.email === "kartmann@musikschulebadsoden.de" ||
+  user?.email === "info@musikschulebadsoden.de" ||
+  user?.email === "kopp_m@musikschulebadsoden.de";
 
   const monthName = calendarMonth.toLocaleString("de-DE", {
     month: "long",
