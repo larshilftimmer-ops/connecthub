@@ -204,6 +204,31 @@ export default function Home() {
     loadGroups();
   }
 
+  useEffect(() => {
+    if (!selectedGroup) return;
+  
+    loadMessages();
+  
+    const channel = supabase
+      .channel("messages-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "messages",
+        },
+        () => {
+          loadMessages();
+        }
+      )
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedGroup]);
+
   async function loadMessages() {
     const { data } = await supabase
       .from("messages")
