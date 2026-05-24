@@ -12,6 +12,7 @@ import ProfilePage from "./components/ProfilePage";
 import CoursesPage from "./components/CoursePage";
 import SchedulePage from "./components/SchedulePage";
 import InstrumentsPage from "./components/InstrumentsPage";
+import AdminPanel from "./components/AdminPanel";
 
 
 
@@ -451,6 +452,7 @@ setProfile(profileData);
     user={user}
     logout={logout}
     setActivePage={setActivePage}
+    isAdmin={isAdmin}
   />
 )}
 
@@ -492,6 +494,10 @@ setProfile(profileData);
     createEvent={createEvent}
     events={events}
   />
+)}
+
+{activePage === "admin" && isAdmin && (
+  <AdminPanel />
 )}
 
 {activePage === "profile" && (

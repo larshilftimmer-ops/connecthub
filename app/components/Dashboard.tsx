@@ -2,12 +2,14 @@ type Props = {
     user: any;
     logout: () => void;
     setActivePage: (page: string) => void;
+    isAdmin: boolean;
   };
   
   export default function Dashboard({
     user,
     logout,
     setActivePage,
+    isAdmin,
   }: Props) {
     return (
       <>
@@ -75,6 +77,19 @@ type Props = {
           </button>
         </div>
   
+        {isAdmin && (
+  <button
+    onClick={() => setActivePage("admin")}
+    className="bg-red-900 p-5 rounded-3xl text-left col-span-2"
+  >
+    <div className="text-3xl mb-2">🛠️</div>
+    <h3 className="font-bold">Admin Panel</h3>
+    <p className="text-gray-300 text-sm">
+      Verwaltung öffnen
+    </p>
+  </button>
+)}
+
         <p className="text-gray-400 mt-6">
           {user.email}
         </p>
