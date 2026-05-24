@@ -393,7 +393,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white p-6 pb-28">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className={‘flex justify-between items-center mb-8 ${activePage !== "dashboard" ? "hidden" : ""}‘}>
           <div>
 
 {activePage === "dashboard" && (
