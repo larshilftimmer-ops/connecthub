@@ -1,4 +1,25 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "../supabase";
+
 export default function AdminPanel() {
+    const [users, setUsers] = useState<any[]>([]);
+
+useEffect(() => {
+  loadUsers();
+}, []);
+
+async function loadUsers() {
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("email", { ascending: true });
+
+  if (data) {
+    setUsers(data);
+  }
+}
     return (
       <section className="bg-zinc-900 rounded-2xl p-6">
         <h2 className="text-2xl font-bold mb-4">
@@ -26,6 +47,28 @@ export default function AdminPanel() {
             📰 News
           </button>
         </div>
+        <div className="mt-8">
+  <h3 className="text-xl font-bold mb-4">
+    Benutzerverwaltung
+  </h3>
+
+  <div className="space-y-3">
+    {users.map((user) => (
+      <div
+        key={user.email}
+        className="bg-zinc-800 p-4 rounded-xl"
+      >
+        <p className="font-bold">
+          {user.email}
+        </p>
+
+        <p className="text-gray-400">
+          Rolle: {user.role || "schueler"}
+        </p>
+      </div>
+    ))}
+  </div>
+</div>
       </section>
     );
   }
