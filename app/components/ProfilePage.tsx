@@ -29,7 +29,7 @@ export default function ProfilePage({ user }: Props) {
       setPhone(data.phone || "");
       setInstrument(data.instrument || "");
     }
-  
+  }
 
   async function saveProfile() {
     const { error } = await supabase
@@ -47,31 +47,26 @@ export default function ProfilePage({ user }: Props) {
     }
 
     alert("Profil gespeichert.");
-}
-
   }
 
-    async function changePassword() {
-        if (!newPassword.trim()) {
-          setNewPassword("");
-            alert("Bitte neues Passwort eingeben.");
-          return;
-        }
-      
-        const { error } = await supabase.auth.updateUser({
-          password: newPassword,
-        });
-      
-        if (error) {
-          alert("Passwort konnte nicht geändert werden.");
-          return;
-        }
-      
-        setNewPassword("");
-        alert("Passwort geändert.");
-      }
+  async function changePassword() {
+    if (!newPassword.trim()) {
+      alert("Bitte neues Passwort eingeben.");
+      return;
+    }
 
-    
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      alert("Passwort konnte nicht geändert werden.");
+      return;
+    }
+
+    setNewPassword("");
+    alert("Passwort geändert.");
+  }
 
   return (
     <section className="bg-zinc-900 rounded-2xl p-6">
@@ -101,15 +96,13 @@ export default function ProfilePage({ user }: Props) {
           className="w-full p-4 rounded-xl bg-zinc-800"
         />
 
-<input
-  type="password"
-  placeholder="Neues Passwort"
-  value={newPassword}
-  onChange={(e) =>
-    setNewPassword(e.target.value)
-  }
-  className="w-full p-4 rounded-xl bg-zinc-800"
-/>
+        <input
+          type="password"
+          placeholder="Neues Passwort"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="w-full p-4 rounded-xl bg-zinc-800"
+        />
 
         <input
           value={user.email}
@@ -125,12 +118,11 @@ export default function ProfilePage({ user }: Props) {
         </button>
 
         <button
-  onClick={changePassword}
-  className="w-full bg-red-600 p-4 rounded-xl"
->
-  Passwort ändern
-</button>
-
+          onClick={changePassword}
+          className="w-full bg-red-600 p-4 rounded-xl"
+        >
+          Passwort ändern
+        </button>
       </div>
     </section>
   );
