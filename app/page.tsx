@@ -10,6 +10,9 @@ import NewsPage from "./components/NewsPage";
 import LinksPage from "./components/LinksPage";
 import ProfilePage from "./components/ProfilePage";
 import CoursesPage from "./components/CoursePage";
+import SchedulePage from "./components/SchedulePage";
+
+
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -454,6 +457,10 @@ export default function Home() {
 
 {activePage === "courses" && (
   <CoursesPage />
+)}
+
+{activePage === "Schedule" && (
+  <SchedulePage />
 )}
 
 {activePage === "news" && (
