@@ -31,7 +31,9 @@ async function loadUsers() {
         </p>
   
         <div className="grid grid-cols-2 gap-4">
-          <button className="bg-zinc-800 p-5 rounded-2xl text-left">
+          <button
+          onClick={loadUsers}
+          className="bg-zinc-800 p-5 rounded-2xl text-left">
             👥 Benutzer
           </button>
   
