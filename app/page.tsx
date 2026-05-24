@@ -41,7 +41,7 @@ export default function Home() {
 
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
-  const isAdmin = true;
+  const isAdmin = profile?.role === "admin";
 
   const monthName = calendarMonth.toLocaleString("de-DE", {
     month: "long",
