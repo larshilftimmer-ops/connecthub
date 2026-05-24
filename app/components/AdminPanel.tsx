@@ -5,7 +5,7 @@ import { supabase } from "../supabase";
 
 export default function AdminPanel() {
     const [users, setUsers] = useState<any[]>([]);
-
+    const [activeAdminTab, setActiveAdminTab] = useState("users");
 useEffect(() => {
   loadUsers();
 }, []);
@@ -32,7 +32,7 @@ async function loadUsers() {
   
         <div className="grid grid-cols-2 gap-4">
           <button
-          onClick={loadUsers}
+          onClick={() => setActiveAdminTab("users")}
           className="bg-zinc-800 p-5 rounded-2xl text-left">
             👥 Benutzer
           </button>
