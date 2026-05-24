@@ -14,10 +14,11 @@ export default function AdminPanel() {
   async function loadUsers() {
     const { data } = await supabase
       .from("profiles")
-      .select("*")
+      .select("email, role")
       .order("email", { ascending: true });
 
     if (data) {
+        console.log(data);
       setUsers(data);
     }
   }
