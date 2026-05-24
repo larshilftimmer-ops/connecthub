@@ -48,7 +48,8 @@ export default function ProfilePage({ user }: Props) {
 
     async function changePassword() {
         if (!newPassword.trim()) {
-          alert("Bitte neues Passwort eingeben.");
+          setNewPassword("");
+            alert("Bitte neues Passwort eingeben.");
           return;
         }
       
