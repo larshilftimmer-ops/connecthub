@@ -11,6 +11,7 @@ export default function ProfilePage({ user }: Props) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [instrument, setInstrument] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     loadProfile();
@@ -45,6 +46,25 @@ export default function ProfilePage({ user }: Props) {
       return;
     }
 
+    async function changePassword() {
+        if (!newPassword.trim()) {
+          alert("Bitte neues Passwort eingeben.");
+          return;
+        }
+      
+        const { error } = await supabase.auth.updateUser({
+          password: newPassword,
+        });
+      
+        if (error) {
+          alert("Passwort konnte nicht geändert werden.");
+          return;
+        }
+      
+        setNewPassword("");
+        alert("Passwort geändert.");
+      }
+
     alert("Profil gespeichert.");
   }
 
@@ -76,6 +96,16 @@ export default function ProfilePage({ user }: Props) {
           className="w-full p-4 rounded-xl bg-zinc-800"
         />
 
+<input
+  type="password"
+  placeholder="Neues Passwort"
+  value={newPassword}
+  onChange={(e) =>
+    setNewPassword(e.target.value)
+  }
+  className="w-full p-4 rounded-xl bg-zinc-800"
+/>
+
         <input
           value={user.email}
           disabled
@@ -88,6 +118,14 @@ export default function ProfilePage({ user }: Props) {
         >
           Profil speichern
         </button>
+
+        <button
+  onClick={changePassword}
+  className="w-full bg-red-600 p-4 rounded-xl"
+>
+  Passwort ändern
+</button>
+
       </div>
     </section>
   );
