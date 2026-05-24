@@ -1,4 +1,4 @@
-ype Props = {
+type Props = {
     news: any[];
   };
   
