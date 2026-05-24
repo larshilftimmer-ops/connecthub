@@ -6,6 +6,8 @@ import Dashboard from "./components/Dashboard";
 import BottomNav from "./components/BottomNav";
 import ChatPage from "./components/ChatPage";
 import CalendarPage from "./components/CalendarPage";
+import NewsPage from "./components/NewsPage";
+
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -445,26 +447,8 @@ export default function Home() {
 )}
 
 {activePage === "news" && (
-  <section className="bg-zinc-900 rounded-2xl p-6">
-    <h2 className="text-3xl font-bold mb-6">
-      Musikschule News
-    </h2>
-
-    <div className="space-y-4">
-      {news.map((item, index) => (
-        <div
-          key={index}
-          className="bg-zinc-800 p-4 rounded-xl"
-        >
-          <h3 className="text-xl font-bold">
-            {item.title}
-          </h3>
-        </div>
-      ))}
-    </div>
-  </section>
+  <NewsPage news={news} />
 )}
-
         {activePage === "links" && (
           <section className="bg-zinc-900 rounded-2xl p-6">
             <h2 className="text-2xl font-bold mb-4">
