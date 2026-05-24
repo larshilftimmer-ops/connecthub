@@ -20,6 +20,8 @@ export default function Home() {
   const [password, setPassword] = useState("");
 
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+
   const [activePage, setActivePage] = useState("dashboard");
 
   const [groups, setGroups] = useState<any[]>([]);
@@ -101,7 +103,16 @@ export default function Home() {
 
   async function checkUser() {
     const { data } = await supabase.auth.getUser();
+
     setUser(data.user);
+
+    const { data: profileData } = await supabase
+  .from("profiles")
+  .select("*")
+  .eq("email", data.user?.email)
+  .single();
+
+setProfile(profileData);
   }
 
   async function register() {
@@ -427,7 +438,13 @@ export default function Home() {
   }
 
   return (
+    
     <main className="min-h-screen bg-black text-white p-6 pb-28">
+
+      <p className="text-sm text-gray-400 mb-4">
+  Rolle: {profile?.role}
+</p>
+
       <div className="max-w-7xl mx-auto">
       {activePage === "dashboard" && (
   <Dashboard
