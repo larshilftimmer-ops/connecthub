@@ -11,6 +11,7 @@ import LinksPage from "./components/LinksPage";
 import ProfilePage from "./components/ProfilePage";
 import CoursesPage from "./components/CoursePage";
 import SchedulePage from "./components/SchedulePage";
+import InstrumentsPage from "./components/IntrumentsPage";
 
 
 
@@ -461,6 +462,10 @@ export default function Home() {
 
 {activePage === "Schedule" && (
   <SchedulePage />
+)}
+
+{activePage === "instruments" && (
+  <InstrumentsPage />
 )}
 
 {activePage === "news" && (
