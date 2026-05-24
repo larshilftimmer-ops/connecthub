@@ -9,7 +9,7 @@ import CalendarPage from "./components/CalendarPage";
 import NewsPage from "./components/NewsPage";
 import LinksPage from "./components/LinksPage";
 import ProfilePage from "./components/ProfilePage";
-import CoursePage from "./components/CoursePage";
+import CoursesPage from "./components/CoursePage";
 
 export default function Home() {
   const [email, setEmail] = useState("");
