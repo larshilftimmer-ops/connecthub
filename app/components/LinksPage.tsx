@@ -38,7 +38,15 @@ export default function LinksPage() {
 >
   💼 Lexware Login öffnen
 </a>
-  
+
+<a
+  href="https://app.edtime.de/login"
+  target="_blank"
+  className="block bg-zinc-800 p-4 rounded-xl"
+>
+  🕒 edTime Login öffnen
+</a>
+
         </div>
       </section>
     );
