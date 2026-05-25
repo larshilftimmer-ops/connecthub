@@ -8,7 +8,7 @@ export default function LinksPage() {
         <div className="space-y-4">
   
           <a
-            href="https://www.freie-musikschule-bad-soden.de"
+            href="https://www.musikschulebadsoden.de"
             target="_blank"
             className="block bg-zinc-800 p-4 rounded-xl"
           >
@@ -16,7 +16,7 @@ export default function LinksPage() {
           </a>
   
           <a
-            href="https://www.instagram.com"
+            href="https://www.instagram.com/musikschulebadsoden/"
             target="_blank"
             className="block bg-zinc-800 p-4 rounded-xl"
           >
@@ -31,16 +31,13 @@ export default function LinksPage() {
             ▶️ YouTube
           </a>
 
-          <div className="bg-zinc-800 p-4 rounded-xl">
-  <h3 className="font-bold mb-3">
-    💼 Lexware Login
-  </h3>
-
-  <iframe
-    src="https://mycenter.lexware.de/202501/?service_ip=servicebus:08c51fc8-4587-4c49-9394-9f13748694c3-1#/auth/login?returnUrl=%2Fdashboard&message=LOGIN.ZUN%25C3%2584CHST_EINLOGGEN&isError=false"
-    className="w-full h-[600px] rounded-xl bg-white"
-  />
-</div>
+          <a
+  href="https://app.lexware.de"
+  target="_blank"
+  className="block bg-zinc-800 p-4 rounded-xl"
+>
+  💼 Lexware Login öffnen
+</a>
   
         </div>
       </section>
