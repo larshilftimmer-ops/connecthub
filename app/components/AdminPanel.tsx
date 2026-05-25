@@ -100,6 +100,8 @@ export default function AdminPanel() {
           {user.name || "-"}
         </p>
       </div>
+    ))}
+</div>
 
 <h4 className="text-lg font-bold mt-6 mb-2 text-green-400">
   👩‍🏫 Lehrer
@@ -118,6 +120,8 @@ export default function AdminPanel() {
           {user.name || "-"}
         </p>
       </div>
+    ))}
+</div>
 
 <h4 className="text-lg font-bold mt-6 mb-2 text-yellow-400">
 👨‍👩‍👧 Eltern
