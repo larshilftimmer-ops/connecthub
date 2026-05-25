@@ -7,6 +7,7 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<any[]>([]);
   const [activeAdminTab, setActiveAdminTab] = useState("users");
   const [search, setSearch] = useState("");
+  const [selectedFile, setSelectedFile] = useState<any>(null);
 
   useEffect(() => {
     loadUsers();
@@ -24,9 +25,41 @@ export default function AdminPanel() {
     }
   }
 
+  async function uploadFile() {
+    if (!selectedFile) return;
+  
+    const fileName = Date.now() + "-" + selectedFile.name;
+  
+    const { data, error } = await supabase.storage
+      .from("files")
+      .upload("uploads/" + fileName, selectedFile);
+  
+    if (error) {
+      console.log(error);
+      alert("Upload fehlgeschlagen: " + error.message);
+    } else {
+      console.log(data);
+      alert("Datei hochgeladen");
+    }
+  }
   return (
     <section className="bg-zinc-900 rounded-2xl p-6">
       <h2 className="text-2xl font-bold mb-4">Admin Panel</h2>
+
+      <div className="bg-zinc-800 p-4 rounded-xl mb-6">
+  <input
+    type="file"
+    onChange={(e) => setSelectedFile(e.target.files?.[0])}
+    className="mb-4"
+  />
+
+  <button
+    onClick={uploadFile}
+    className="bg-blue-600 px-4 py-2 rounded-xl"
+  >
+    Datei hochladen
+  </button>
+</div>
 
       <p className="text-gray-400 mb-6">
         Verwaltungsbereich der Musikschule.
