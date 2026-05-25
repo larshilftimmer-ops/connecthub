@@ -27,6 +27,14 @@ export default function AdminPanel() {
     }
   }
 
+  async function downloadFile(fileName: string) {
+    const { data } = supabase.storage
+      .from("files")
+      .getPublicUrl("uploads/" + fileName);
+  
+    window.open(data.publicUrl, "_blank");
+  }
+
   async function uploadFile() {
     if (!selectedFile) return;
 
@@ -97,6 +105,13 @@ export default function AdminPanel() {
               className="bg-zinc-800 p-3 rounded-xl"
             >
               {file.name}
+              
+              <button
+  onClick={() => downloadFile(file.name)}
+  className="bg-green-600 px-3 py-1 rounded-lg ml-3"
+>
+  Download
+</button>  
             </div>
           ))}
         </div>
