@@ -61,6 +61,7 @@ export default function AdminPanel() {
 
     if (data) {
       setFiles(data);
+      console.log(data);
     }
 
     if (error) {
@@ -105,7 +106,7 @@ export default function AdminPanel() {
               className="bg-zinc-800 p-3 rounded-xl"
             >
               {file.name}
-              
+
               <button
   onClick={() => downloadFile(file.name)}
   className="bg-green-600 px-3 py-1 rounded-lg ml-3"
