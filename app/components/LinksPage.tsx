@@ -30,6 +30,17 @@ export default function LinksPage() {
           >
             ▶️ YouTube
           </a>
+
+          <div className="bg-zinc-800 p-4 rounded-xl">
+  <h3 className="font-bold mb-3">
+    💼 Lexware Login
+  </h3>
+
+  <iframe
+    src="https://app.lexware.de"
+    className="w-full h-[600px] rounded-xl bg-white"
+  />
+</div>
   
         </div>
       </section>
