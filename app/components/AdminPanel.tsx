@@ -29,19 +29,20 @@ export default function AdminPanel() {
 
   async function uploadFile() {
     if (!selectedFile) return;
-  
+
     const fileName = Date.now() + "-" + selectedFile.name;
-  
+
     const { data, error } = await supabase.storage
       .from("files")
       .upload("uploads/" + fileName, selectedFile);
-  
+
     if (error) {
       console.log(error);
       alert("Upload fehlgeschlagen: " + error.message);
     } else {
       console.log(data);
       alert("Datei hochgeladen");
+      loadFiles();
     }
   }
 
@@ -49,11 +50,11 @@ export default function AdminPanel() {
     const { data, error } = await supabase.storage
       .from("files")
       .list("uploads");
-  
+
     if (data) {
       setFiles(data);
     }
-  
+
     if (error) {
       console.log(error);
     }
@@ -61,43 +62,51 @@ export default function AdminPanel() {
 
   return (
     <section className="bg-zinc-900 rounded-2xl p-6">
-      <h2 className="text-2xl font-bold mb-4">Admin Panel</h2>
+      <h2 className="text-2xl font-bold mb-4">
+        Admin Panel
+      </h2>
 
+      {/* Datei Upload */}
       <div className="bg-zinc-800 p-4 rounded-xl mb-6">
-  <input
-    type="file"
-    onChange={(e) => setSelectedFile(e.target.files?.[0])}
-    className="mb-4"
-  />
+        <input
+          type="file"
+          onChange={(e) =>
+            setSelectedFile(e.target.files?.[0])
+          }
+          className="mb-4"
+        />
 
-  <button
-    onClick={uploadFile}
-    className="bg-blue-600 px-4 py-2 rounded-xl"
-  >
-    Datei hochladen
-  </button>
-</div>
+        <button
+          onClick={uploadFile}
+          className="bg-blue-600 px-4 py-2 rounded-xl"
+        >
+          Datei hochladen
+        </button>
+      </div>
 
-<div className="mt-6">
-  <h3 className="text-lg font-bold mb-3">
-    Hochgeladene Dateien
-  </h3>
+      {/* Dateiliste */}
+      <div className="mt-6">
+        <h3 className="text-lg font-bold mb-3">
+          Hochgeladene Dateien
+        </h3>
 
-  <div className="space-y-2">
-  {files.map((file) => (
-    <div
-      key={file.name}
-      className="bg-zinc-800 p-3 rounded-xl"
-    >
-      {file.name}
-    </div>
-  ))}
-</div>
+        <div className="space-y-2">
+          {files.map((file) => (
+            <div
+              key={file.name}
+              className="bg-zinc-800 p-3 rounded-xl"
+            >
+              {file.name}
+            </div>
+          ))}
+        </div>
+      </div>
 
-      <p className="text-gray-400 mb-6">
+      <p className="text-gray-400 mb-6 mt-6">
         Verwaltungsbereich der Musikschule.
       </p>
 
+      {/* Suche */}
       <input
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -105,6 +114,7 @@ export default function AdminPanel() {
         className="w-full p-4 rounded-xl bg-zinc-800 mb-6"
       />
 
+      {/* Tabs */}
       <div className="grid grid-cols-2 gap-4">
         <button
           onClick={() => setActiveAdminTab("users")}
@@ -126,6 +136,7 @@ export default function AdminPanel() {
         </button>
       </div>
 
+      {/* Benutzerverwaltung */}
       {activeAdminTab === "users" && (
         <div className="mt-8">
           <h3 className="text-xl font-bold mb-4">
@@ -137,62 +148,111 @@ export default function AdminPanel() {
           </p>
 
           <p className="text-blue-400">
-            Schüler: {users.filter((u) => u.role === "student").length}
+            Schüler:{" "}
+            {
+              users.filter(
+                (u) => u.role === "student"
+              ).length
+            }
           </p>
 
           <p className="text-green-400">
-            Lehrer: {users.filter((u) => u.role === "teacher").length}
+            Lehrer:{" "}
+            {
+              users.filter(
+                (u) => u.role === "teacher"
+              ).length
+            }
           </p>
 
           <p className="text-yellow-400 mb-4">
-            Eltern: {users.filter((u) => u.role === "parent").length}
+            Eltern:{" "}
+            {
+              users.filter(
+                (u) => u.role === "parent"
+              ).length
+            }
           </p>
 
+          {/* Schüler */}
           <h4 className="text-lg font-bold mt-6 mb-2 text-blue-400">
             👨‍🎓 Schüler
           </h4>
 
           <div className="space-y-3 mb-6">
             {users
-              .filter((user) => user.role === "student")
+              .filter(
+                (user) => user.role === "student"
+              )
               .map((user) => (
-                <div key={user.email} className="bg-zinc-800 p-4 rounded-xl">
-                  <p className="font-bold">{user.email}</p>
-                  <p className="text-gray-400">{user.name || "-"}</p>
+                <div
+                  key={user.email}
+                  className="bg-zinc-800 p-4 rounded-xl"
+                >
+                  <p className="font-bold">
+                    {user.email}
+                  </p>
+
+                  <p className="text-gray-400">
+                    {user.name || "-"}
+                  </p>
                 </div>
               ))}
           </div>
 
+          {/* Lehrer */}
           <h4 className="text-lg font-bold mt-6 mb-2 text-green-400">
             👩‍🏫 Lehrer
           </h4>
 
           <div className="space-y-3 mb-6">
             {users
-              .filter((user) => user.role === "teacher")
+              .filter(
+                (user) => user.role === "teacher"
+              )
               .map((user) => (
-                <div key={user.email} className="bg-zinc-800 p-4 rounded-xl">
-                  <p className="font-bold">{user.email}</p>
-                  <p className="text-gray-400">{user.name || "-"}</p>
+                <div
+                  key={user.email}
+                  className="bg-zinc-800 p-4 rounded-xl"
+                >
+                  <p className="font-bold">
+                    {user.email}
+                  </p>
+
+                  <p className="text-gray-400">
+                    {user.name || "-"}
+                  </p>
                 </div>
               ))}
           </div>
 
+          {/* Eltern */}
           <h4 className="text-lg font-bold mt-6 mb-2 text-yellow-400">
             👨‍👩‍👧 Eltern
           </h4>
 
           <div className="space-y-3 mb-6">
             {users
-              .filter((user) => user.role === "parent")
+              .filter(
+                (user) => user.role === "parent"
+              )
               .map((user) => (
-                <div key={user.email} className="bg-zinc-800 p-4 rounded-xl">
-                  <p className="font-bold">{user.email}</p>
-                  <p className="text-gray-400">{user.name || "-"}</p>
+                <div
+                  key={user.email}
+                  className="bg-zinc-800 p-4 rounded-xl"
+                >
+                  <p className="font-bold">
+                    {user.email}
+                  </p>
+
+                  <p className="text-gray-400">
+                    {user.name || "-"}
+                  </p>
                 </div>
               ))}
           </div>
 
+          {/* Alle Benutzer */}
           <div className="space-y-3">
             <h4 className="text-lg font-bold mt-6 mb-2">
               Alle Benutzer
@@ -200,22 +260,35 @@ export default function AdminPanel() {
 
             {users
               .filter((user) =>
-                user.email.toLowerCase().includes(search.toLowerCase())
+                user.email
+                  .toLowerCase()
+                  .includes(search.toLowerCase())
               )
               .map((user) => (
-                <div key={user.email} className="bg-zinc-800 p-4 rounded-xl">
-                  <p className="font-bold">{user.email}</p>
-                  <p className="text-gray-400">
-                    Rolle: {user.role || "schueler"}
+                <div
+                  key={user.email}
+                  className="bg-zinc-800 p-4 rounded-xl"
+                >
+                  <p className="font-bold">
+                    {user.email}
                   </p>
+
+                  <p className="text-gray-400">
+                    Rolle:{" "}
+                    {user.role || "schueler"}
+                  </p>
+
                   <p className="text-gray-400">
                     Name: {user.name || "-"}
                   </p>
+
                   <p className="text-gray-400">
                     Telefon: {user.phone || "-"}
                   </p>
+
                   <p className="text-gray-400">
-                    Instrument: {user.instrument || "-"}
+                    Instrument:{" "}
+                    {user.instrument || "-"}
                   </p>
                 </div>
               ))}
