@@ -99,23 +99,32 @@ export default function AdminPanel() {
           Hochgeladene Dateien
         </h3>
 
-        <div className="space-y-2">
-          {files.map((file) => (
-            <div
-              key={file.name}
-              className="bg-zinc-800 p-3 rounded-xl"
-            >
-              {file.name}
 
-              <button
-  onClick={() => downloadFile(file.name)}
-  className="bg-green-600 px-3 py-1 rounded-lg ml-3"
->
-  Download
-</button>  
-            </div>
-          ))}
-        </div>
+        <div className="space-y-3">
+
+  {files.length === 0 ? (
+    <p className="text-gray-400">
+      Keine Dateien vorhanden.
+    </p>
+  ) : (
+    files.map((file) => (
+      <div
+        key={file.name}
+        className="bg-zinc-800 p-3 rounded-xl flex justify-between items-center"
+      >
+        <span>{file.name}</span>
+
+        <button
+          onClick={() => downloadFile(file.name)}
+          className="bg-green-600 px-3 py-1 rounded-lg ml-3"
+        >
+          Download
+        </button>
+      </div>
+    ))
+  )}
+
+</div>
       </div>
 
       <p className="text-gray-400 mb-6 mt-6">
