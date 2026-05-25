@@ -84,6 +84,9 @@ export default function AdminPanel() {
 </p>
 
           <div className="space-y-3">
+          <h4 className="text-lg font-bold mt-6 mb-2">
+  Alle Benutzer
+</h4>
           {users
   .filter((user) =>
     user.email.toLowerCase().includes(search.toLowerCase())
