@@ -14,7 +14,7 @@ export default function AdminPanel() {
   async function loadUsers() {
     const { data } = await supabase
       .from("profiles")
-      .select("email, role")
+      .select("email, role, name, phone, instrument")
       .order("email", { ascending: true });
 
     if (data) {
@@ -76,6 +76,19 @@ export default function AdminPanel() {
                 <p className="text-gray-400">
                   Rolle: {user.role || "schueler"}
                 </p>
+
+                <p className="text-gray-400">
+                Name: {user.name || "-"}
+                </p>
+
+                <p className="text-gray-400">
+                Telefon: {user.phone || "-"}
+                </p>
+
+                <p className="text-gray-400">
+                Instrument: {user.instrument || "-"}
+                </p>
+                
               </div>
             ))}
           </div>
