@@ -118,6 +118,26 @@ export default function AdminPanel() {
           {user.name || "-"}
         </p>
       </div>
+
+<h4 className="text-lg font-bold mt-6 mb-2 text-yellow-400">
+👨‍👩‍👧 Eltern
+</h4>
+
+<div className="space-y-3 mb-6">
+{users
+  .filter((user) => user.role === "parent")
+  .map((user) => (
+    <div
+      key={user.email}
+      className="bg-zinc-800 p-4 rounded-xl"
+    >
+      <p className="font-bold">{user.email}</p>
+      <p className="text-gray-400">
+        {user.name || "-"}
+      </p>
+    </div>
+  ))}
+</div>
     ))}
 </div>      
     ))}
