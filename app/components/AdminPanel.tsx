@@ -6,6 +6,7 @@ import { supabase } from "../supabase";
 export default function AdminPanel() {
   const [users, setUsers] = useState<any[]>([]);
   const [activeAdminTab, setActiveAdminTab] = useState("users");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     loadUsers();
@@ -32,6 +33,13 @@ export default function AdminPanel() {
       <p className="text-gray-400 mb-6">
         Verwaltungsbereich der Musikschule.
       </p>
+
+      <input
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  placeholder="Benutzer suchen..."
+  className="w-full p-4 rounded-xl bg-zinc-800 mb-6"
+/>
 
       <div className="grid grid-cols-2 gap-4">
         <button
@@ -64,7 +72,11 @@ export default function AdminPanel() {
             </p>
 
           <div className="space-y-3">
-            {users.map((user) => (
+          {users
+  .filter((user) =>
+    user.email.toLowerCase().includes(search.toLowerCase())
+  )
+  .map((user) => (
               <div
                 key={user.email}
                 className="bg-zinc-800 p-4 rounded-xl"
