@@ -438,6 +438,23 @@ setProfile(profileData);
             className="w-full p-4 rounded-xl bg-zinc-800 mb-6"
           />
 
+          <button
+            onClick={login}
+            className="w-full bg-blue-600 p-4 rounded-xl mb-4"
+          >
+            Einloggen
+          </button>
+
+          <select
+  value={registerRole}
+  onChange={(e) => setRegisterRole(e.target.value)}
+  className="w-full p-4 rounded-xl bg-zinc-800 mb-4"
+>
+  <option value="student">Schüler</option>
+  <option value="teacher">Lehrer</option>
+  <option value="parent">Eltern</option>
+</select>
+
 <input
   type="text"
   placeholder="Name"
@@ -461,23 +478,6 @@ setProfile(profileData);
   onChange={(e) => setRegisterInstrument(e.target.value)}
   className="w-full bg-zinc-800 p-4 rounded-xl mb-4"
 />
-
-          <button
-            onClick={login}
-            className="w-full bg-blue-600 p-4 rounded-xl mb-4"
-          >
-            Einloggen
-          </button>
-
-          <select
-  value={registerRole}
-  onChange={(e) => setRegisterRole(e.target.value)}
-  className="w-full p-4 rounded-xl bg-zinc-800 mb-4"
->
-  <option value="student">Schüler</option>
-  <option value="teacher">Lehrer</option>
-  <option value="parent">Eltern</option>
-</select>
 
           <button
             onClick={register}
