@@ -22,6 +22,7 @@ export default function Home() {
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [registerRole, setRegisterRole] = useState("student");
 
   const [activePage, setActivePage] = useState("dashboard");
 
@@ -135,6 +136,11 @@ setProfile(profileData);
     const { error } = await supabase.auth.signUp({
       email,
       password,
+    });
+
+    await supabase.from("profiles").insert({
+      email,
+      role: registerRole,
     });
 
     if (error) {
@@ -431,6 +437,16 @@ setProfile(profileData);
           >
             Einloggen
           </button>
+
+          <select
+  value={registerRole}
+  onChange={(e) => setRegisterRole(e.target.value)}
+  className="w-full p-4 rounded-xl bg-zinc-800 mb-4"
+>
+  <option value="student">Schüler</option>
+  <option value="teacher">Lehrer</option>
+  <option value="parent">Eltern</option>
+</select>
 
           <button
             onClick={register}
