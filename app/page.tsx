@@ -141,11 +141,6 @@ setProfile(profileData);
       password,
     });
 
-    await supabase.from("profiles").insert({
-      email,
-      role: registerRole,
-    });
-
     if (error) {
       alert("Registrierung fehlgeschlagen.");
     } else {
@@ -160,6 +155,7 @@ setProfile(profileData);
     
       alert("Registrierung erfolgreich.");
     }
+  }
 
   async function login() {
     const { error } =
@@ -575,11 +571,11 @@ setProfile(profileData);
 {activePage === "news" && (
   <NewsPage news={news} />
 )}
-        {activePage === "links" && (
+{activePage === "links" && (
   <LinksPage />
 )}
 
-   </div>
- </main>
-        );
-      }
+  </div>
+  </main>
+  );
+  }
