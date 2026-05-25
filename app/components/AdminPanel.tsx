@@ -8,9 +8,11 @@ export default function AdminPanel() {
   const [activeAdminTab, setActiveAdminTab] = useState("users");
   const [search, setSearch] = useState("");
   const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [files, setFiles] = useState<any[]>([]);
 
   useEffect(() => {
     loadUsers();
+    loadFiles();
   }, []);
 
   async function loadUsers() {
@@ -42,6 +44,21 @@ export default function AdminPanel() {
       alert("Datei hochgeladen");
     }
   }
+
+  async function loadFiles() {
+    const { data, error } = await supabase.storage
+      .from("files")
+      .list("uploads");
+  
+    if (data) {
+      setFiles(data);
+    }
+  
+    if (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <section className="bg-zinc-900 rounded-2xl p-6">
       <h2 className="text-2xl font-bold mb-4">Admin Panel</h2>
@@ -59,6 +76,22 @@ export default function AdminPanel() {
   >
     Datei hochladen
   </button>
+</div>
+
+<div className="mt-6">
+  <h3 className="text-lg font-bold mb-3">
+    Hochgeladene Dateien
+  </h3>
+
+  <div className="space-y-2">
+  {files.map((file) => (
+    <div
+      key={file.name}
+      className="bg-zinc-800 p-3 rounded-xl"
+    >
+      {file.name}
+    </div>
+  ))}
 </div>
 
       <p className="text-gray-400 mb-6">
