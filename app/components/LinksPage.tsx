@@ -37,7 +37,7 @@ export default function LinksPage() {
   </h3>
 
   <iframe
-    src="https://app.lexware.de"
+    src="https://mycenter.lexware.de/202501/?service_ip=servicebus:08c51fc8-4587-4c49-9394-9f13748694c3-1#/auth/login?returnUrl=%2Fdashboard&message=LOGIN.ZUN%25C3%2584CHST_EINLOGGEN&isError=false"
     className="w-full h-[600px] rounded-xl bg-white"
   />
 </div>
