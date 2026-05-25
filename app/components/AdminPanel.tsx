@@ -141,10 +141,8 @@ export default function AdminPanel() {
       </p>
     </div>
   ))}
-</div>
-    ))}
-</div>      
-    ))}
+</div>     
+    
 </div>
 
           <div className="space-y-3">
