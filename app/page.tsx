@@ -23,6 +23,9 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [registerRole, setRegisterRole] = useState("student");
+  const [registerName, setRegisterName] = useState("");
+  const [registerPhone, setRegisterPhone] = useState("");
+  const [registerInstrument, setRegisterInstrument] = useState("");
 
   const [activePage, setActivePage] = useState("dashboard");
 
@@ -146,9 +149,17 @@ setProfile(profileData);
     if (error) {
       alert("Registrierung fehlgeschlagen.");
     } else {
+    
+      await supabase.from("profiles").insert({
+        email,
+        role: registerRole,
+        name: registerName,
+        phone: registerPhone,
+        instrument: registerInstrument,
+      });
+    
       alert("Registrierung erfolgreich.");
     }
-  }
 
   async function login() {
     const { error } =
@@ -430,6 +441,30 @@ setProfile(profileData);
             }
             className="w-full p-4 rounded-xl bg-zinc-800 mb-6"
           />
+
+<input
+  type="text"
+  placeholder="Name"
+  value={registerName}
+  onChange={(e) => setRegisterName(e.target.value)}
+  className="w-full bg-zinc-800 p-4 rounded-xl mb-4"
+/>
+
+<input
+  type="text"
+  placeholder="Telefon"
+  value={registerPhone}
+  onChange={(e) => setRegisterPhone(e.target.value)}
+  className="w-full bg-zinc-800 p-4 rounded-xl mb-4"
+/>
+
+<input
+  type="text"
+  placeholder="Instrument"
+  value={registerInstrument}
+  onChange={(e) => setRegisterInstrument(e.target.value)}
+  className="w-full bg-zinc-800 p-4 rounded-xl mb-4"
+/>
 
           <button
             onClick={login}
