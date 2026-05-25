@@ -71,6 +71,18 @@ export default function AdminPanel() {
             Gefundene Benutzer: {users.length}
             </p>
 
+            <p className="text-blue-400">
+  Schüler: {users.filter((u) => u.role === "student").length}
+</p>
+
+<p className="text-green-400">
+  Lehrer: {users.filter((u) => u.role === "teacher").length}
+</p>
+
+<p className="text-yellow-400 mb-4">
+  Eltern: {users.filter((u) => u.role === "parent").length}
+</p>
+
           <div className="space-y-3">
           {users
   .filter((user) =>
