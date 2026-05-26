@@ -151,6 +151,28 @@ export default function AdminPanel() {
         >
           Datei hochladen
         </button>
+
+        <button
+  onClick={async () => {
+    const res = await fetch("/api/news/delete-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: "test",
+      }),
+    })
+
+    const data = await res.json()
+    console.log(data)
+    alert(JSON.stringify(data))
+  }}
+  className="bg-red-600 px-4 py-2 rounded-xl ml-3"
+>
+  API TEST
+</button>  
+
       </div>
 
       {/* Dateiliste */}
