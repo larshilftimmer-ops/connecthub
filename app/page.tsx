@@ -563,7 +563,7 @@ export default function Home() {
             sendMessage={sendMessage}
             messages={messages}
             chatUsers={chatUsers}
-            CurrentUser={user}
+            currentUser={user}
           />
         )}
 
