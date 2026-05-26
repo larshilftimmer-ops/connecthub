@@ -57,6 +57,19 @@ export default function AdminPanel() {
     window.open(data.publicUrl, "_blank");
   }
 
+  async function deleteFile(fileName: string, folder: string) {
+    const { error } = await supabase.storage
+      .from("files")
+      .remove([`uploads/${folder}/${fileName}`]);
+  
+    if (error) {
+      alert("Löschen fehlgeschlagen: " + error.message);
+    } else {
+      alert("Datei gelöscht");
+      loadFiles();
+    }
+  }
+
   async function uploadFile() {
     if (!selectedFile) return;
 
@@ -167,6 +180,14 @@ export default function AdminPanel() {
         >
           Download
         </button>
+        {userRole === "admin" && (
+  <button
+    onClick={() => deleteFile(file.name, file.folder)}
+    className="bg-red-600 px-3 py-1 rounded-lg ml-3"
+  >
+    Löschen
+  </button>
+)}
       </div>
     ))
   )}
