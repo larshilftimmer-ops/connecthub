@@ -1,53 +1,91 @@
 export default function LinksPage() {
-    return (
-      <section className="bg-zinc-900 rounded-2xl p-6">
-        <h2 className="text-2xl font-bold mb-4">
+  const links = [
+    {
+      title: "Musikschule Website",
+      description: "Offizielle Website der Musikschule",
+      icon: "🎵",
+      href: "https://www.musikschulebadsoden.de",
+      color: "from-[#d8a928] to-[#e6c14d]",
+    },
+    {
+      title: "Instagram",
+      description: "Aktuelle Beiträge & Fotos",
+      icon: "📸",
+      href: "https://www.instagram.com/musikschulebadsoden/",
+      color: "from-pink-500 to-orange-400",
+    },
+    {
+      title: "YouTube",
+      description: "Videos & Konzerte",
+      icon: "▶️",
+      href: "https://www.youtube.com",
+      color: "from-red-500 to-red-600",
+    },
+    {
+      title: "Lexware Login",
+      description: "Verwaltungsbereich öffnen",
+      icon: "💼",
+      href: "https://app.lexware.de",
+      color: "from-emerald-500 to-green-600",
+    },
+    {
+      title: "edTime Login",
+      description: "Stunden & Zeiten verwalten",
+      icon: "🕒",
+      href: "https://app.edtime.de/login",
+      color: "from-blue-500 to-cyan-500",
+    },
+  ];
+
+  return (
+    <section className="w-full max-w-full overflow-x-hidden space-y-6 text-zinc-900">
+      <div className="bg-white border border-zinc-200 rounded-3xl shadow-sm p-5 sm:p-6">
+        <p className="text-sm font-semibold text-[#d8a928] mb-2">
+          Musikschule Bad Soden
+        </p>
+
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#7a1f1f]">
           Wichtige Links
         </h2>
-  
-        <div className="space-y-4">
-  
-          <a
-            href="https://www.musikschulebadsoden.de"
-            target="_blank"
-            className="block bg-zinc-800 p-4 rounded-xl"
-          >
-            🎵 Musikschule Website
-          </a>
-  
-          <a
-            href="https://www.instagram.com/musikschulebadsoden/"
-            target="_blank"
-            className="block bg-zinc-800 p-4 rounded-xl"
-          >
-            📸 Instagram
-          </a>
-  
-          <a
-            href="https://www.youtube.com"
-            target="_blank"
-            className="block bg-zinc-800 p-4 rounded-xl"
-          >
-            ▶️ YouTube
-          </a>
 
+        <p className="text-zinc-500 mt-2">
+          Schnellzugriffe & wichtige Plattformen.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {links.map((link) => (
           <a
-  href="https://app.lexware.de"
-  target="_blank"
-  className="block bg-zinc-800 p-4 rounded-xl"
->
-  💼 Lexware Login öffnen
-</a>
+            key={link.title}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-white border border-zinc-200 rounded-3xl shadow-sm p-5 hover:scale-[1.01] transition overflow-hidden"
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${link.color} flex items-center justify-center text-2xl shadow-md flex-shrink-0`}
+              >
+                {link.icon}
+              </div>
 
-<a
-  href="https://app.edtime.de/login"
-  target="_blank"
-  className="block bg-zinc-800 p-4 rounded-xl"
->
-  🕒 edTime Login öffnen
-</a>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-lg font-bold text-[#7a1f1f] break-words">
+                  {link.title}
+                </h3>
 
-        </div>
-      </section>
-    );
-  }
+                <p className="text-zinc-500 text-sm break-words">
+                  {link.description}
+                </p>
+              </div>
+
+              <div className="text-[#7a1f1f] text-2xl flex-shrink-0">
+                →
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
