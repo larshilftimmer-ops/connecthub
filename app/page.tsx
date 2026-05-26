@@ -13,7 +13,7 @@ import CoursesPage from "./components/CoursePage";
 import SchedulePage from "./components/SchedulePage";
 import InstrumentsPage from "./components/InstrumentsPage";
 import AdminPanel from "./components/AdminPanel";
-import FilesPage from "./componentes/FilesPage";
+import FilesPage from "./components/FilesPage";
 
 
 export default function Home() {
