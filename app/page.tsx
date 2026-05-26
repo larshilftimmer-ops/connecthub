@@ -36,6 +36,8 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
 
+  const [chatUsers, setChatUsers] = useState<any[]>([]);
+
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("");
@@ -86,6 +88,7 @@ export default function Home() {
   useEffect(() => {
     checkUser();
     loadGroups();
+    loadChatUsers();
   }, []);
 
   useEffect(() => {
@@ -194,6 +197,42 @@ export default function Home() {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+  }
+
+  async function loadChatUsers() {
+    const { data } = await supabase
+      .from("profiles")
+      .select("email, name, role")
+      .order("email", { ascending: true });
+  
+    if (data) {
+      setChatUsers(data);
+    }
+  }
+  
+  async function createPrivateChat(otherEmail: string) {
+    if (!user?.email) return;
+  
+    const emails = [user.email, otherEmail].sort();
+  
+    const groupName =
+      `Privat: ${emails[0]} ↔ ${emails[1]}`;
+  
+    const exists = groups.find(
+      (group) => group.name === groupName
+    );
+  
+    if (!exists) {
+      await supabase
+        .from("chat_groups")
+        .insert({
+          name: groupName,
+        });
+  
+      await loadGroups();
+    }
+  
+    setSelectedGroup(groupName);
   }
 
   async function loadGroups() {
@@ -523,6 +562,8 @@ export default function Home() {
             setMessage={setMessage}
             sendMessage={sendMessage}
             messages={messages}
+            chatUsers={chatUsers}
+            CurrentUser={user}
           />
         )}
 

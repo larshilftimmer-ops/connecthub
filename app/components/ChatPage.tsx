@@ -11,6 +11,8 @@ type Props = {
     setMessage: (value: string) => void;
     sendMessage: () => void;
     messages: any[];
+    chatUsers: any[];
+    currentUser: any;
   };
   
   export default function ChatPage({
@@ -26,6 +28,8 @@ type Props = {
     setMessage,
     sendMessage,
     messages,
+    chatUsers,
+    currentUser,
   }: Props) {
     return (
       <section className="space-y-6 w-full max-w-full overflow-x-hidden">
