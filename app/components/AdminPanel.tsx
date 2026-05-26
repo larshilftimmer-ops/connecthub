@@ -77,13 +77,10 @@ export default function AdminPanel() {
   }
 
   async function loadFiles() {
-    let folders = ["all"];
-
-    if (userRole === "admin") {
-      folders = ["all", "student", "teacher", "parent"];
-    } else {
-      folders = ["all", userRole];
-    }
+    const folders =
+      userRole === "admin"
+        ? ["all", "student", "teacher", "parent"]
+        : ["all", userRole];
 
     const allFiles: FileItem[] = [];
 
@@ -169,9 +166,7 @@ export default function AdminPanel() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        userId,
-      }),
+      body: JSON.stringify({ userId }),
     });
 
     const data = await res.json();
@@ -186,7 +181,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <section className="space-y-8">
+    <section className="w-full max-w-full overflow-x-hidden bg-[#f7f3ea] text-zinc-900 space-y-6">
       <div className="bg-white border border-zinc-200 rounded-3xl shadow-sm p-5 sm:p-6">
         <p className="text-sm font-semibold text-[#d8a928] mb-2">
           Verwaltung
@@ -201,44 +196,34 @@ export default function AdminPanel() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <button
           onClick={() => setActiveAdminTab("users")}
-          className={`p-5 rounded-3xl text-left border shadow-sm transition ${
+          className={`p-4 sm:p-5 rounded-3xl text-left border shadow-sm transition ${
             activeAdminTab === "users"
               ? "bg-[#7a1f1f] text-white border-[#7a1f1f]"
               : "bg-white text-zinc-900 border-zinc-200"
           }`}
         >
-          <div className="text-3xl mb-3">👥</div>
+          <div className="text-3xl mb-2">👥</div>
           <p className="font-bold">Benutzer</p>
         </button>
 
         <button
           onClick={() => setActiveAdminTab("files")}
-          className={`p-5 rounded-3xl text-left border shadow-sm transition ${
+          className={`p-4 sm:p-5 rounded-3xl text-left border shadow-sm transition ${
             activeAdminTab === "files"
               ? "bg-[#7a1f1f] text-white border-[#7a1f1f]"
               : "bg-white text-zinc-900 border-zinc-200"
           }`}
         >
-          <div className="text-3xl mb-3">📁</div>
+          <div className="text-3xl mb-2">📁</div>
           <p className="font-bold">Dateien</p>
-        </button>
-
-        <button className="bg-white p-5 rounded-3xl text-left border border-zinc-200 shadow-sm">
-          <div className="text-3xl mb-3">🎵</div>
-          <p className="font-bold">Kurse</p>
-        </button>
-
-        <button className="bg-white p-5 rounded-3xl text-left border border-zinc-200 shadow-sm">
-          <div className="text-3xl mb-3">📰</div>
-          <p className="font-bold">News</p>
         </button>
       </div>
 
       {activeAdminTab === "files" && (
-        <div className="bg-white border border-zinc-200 rounded-3xl shadow-sm p-5 sm:p-6">
+        <div className="bg-white border border-zinc-200 rounded-3xl shadow-sm p-5 sm:p-6 overflow-hidden">
           <h3 className="text-xl font-bold text-[#7a1f1f] mb-4">
             Dateien verwalten
           </h3>
@@ -249,14 +234,14 @@ export default function AdminPanel() {
               onChange={(e) =>
                 setSelectedFile(e.target.files?.[0] || null)
               }
-              className="w-full mb-4"
+              className="w-full mb-4 text-sm"
             />
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3">
               <select
                 value={uploadTarget}
                 onChange={(e) => setUploadTarget(e.target.value)}
-                className="bg-white border border-zinc-200 p-3 rounded-xl outline-none"
+                className="w-full bg-white border border-zinc-200 p-3 rounded-xl outline-none"
               >
                 <option value="all">Alle</option>
                 <option value="student">Schüler</option>
@@ -267,7 +252,7 @@ export default function AdminPanel() {
               <button
                 onClick={uploadFile}
                 disabled={isUploading}
-                className="bg-[#7a1f1f] hover:bg-[#651919] disabled:opacity-50 transition text-white font-semibold px-5 py-3 rounded-xl"
+                className="w-full bg-[#7a1f1f] hover:bg-[#651919] disabled:opacity-50 transition text-white font-semibold px-5 py-3 rounded-xl"
               >
                 {isUploading ? "Lädt hoch..." : "Datei hochladen"}
               </button>
@@ -283,10 +268,10 @@ export default function AdminPanel() {
               files.map((file) => (
                 <div
                   key={`${file.folder}-${file.name}`}
-                  className="bg-[#f7f3ea] border border-zinc-200 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                  className="bg-[#f7f3ea] border border-zinc-200 p-4 rounded-2xl flex flex-col gap-3 overflow-hidden"
                 >
-                  <div>
-                    <p className="font-semibold break-all">
+                  <div className="min-w-0">
+                    <p className="font-semibold break-all text-sm sm:text-base">
                       {file.name}
                     </p>
 
@@ -295,7 +280,7 @@ export default function AdminPanel() {
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => downloadFile(file.name, file.folder)}
                       className="bg-zinc-900 text-white px-3 py-2 rounded-xl text-sm"
@@ -320,7 +305,7 @@ export default function AdminPanel() {
       )}
 
       {activeAdminTab === "users" && (
-        <div className="bg-white border border-zinc-200 rounded-3xl shadow-sm p-5 sm:p-6">
+        <div className="bg-white border border-zinc-200 rounded-3xl shadow-sm p-5 sm:p-6 overflow-hidden">
           <h3 className="text-xl font-bold text-[#7a1f1f] mb-4">
             Benutzerverwaltung
           </h3>
@@ -332,7 +317,7 @@ export default function AdminPanel() {
             className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-6 outline-none focus:ring-2 focus:ring-[#d8a928]"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
             <div className="bg-[#f7f3ea] border border-zinc-200 rounded-2xl p-4">
               <p className="text-sm text-zinc-500">Benutzer</p>
               <p className="text-2xl font-bold">{users.length}</p>
@@ -362,10 +347,10 @@ export default function AdminPanel() {
               filteredUsers.map((user) => (
                 <div
                   key={user.id || user.email}
-                  className="bg-[#f7f3ea] border border-zinc-200 p-4 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+                  className="bg-[#f7f3ea] border border-zinc-200 p-4 rounded-2xl flex flex-col gap-4 overflow-hidden"
                 >
-                  <div>
-                    <p className="font-bold break-all">
+                  <div className="min-w-0">
+                    <p className="font-bold break-all text-sm sm:text-base">
                       {user.email}
                     </p>
 
@@ -388,9 +373,9 @@ export default function AdminPanel() {
 
                   <button
                     onClick={() => deleteUser(user.id, user.email)}
-                    className="bg-red-600 hover:bg-red-700 transition text-white px-4 py-2 rounded-xl font-semibold"
+                    className="w-full bg-red-600 hover:bg-red-700 transition text-white px-4 py-3 rounded-xl font-semibold"
                   >
-                    Löschen
+                    Benutzer löschen
                   </button>
                 </div>
               ))
