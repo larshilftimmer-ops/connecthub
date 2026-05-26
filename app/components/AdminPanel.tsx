@@ -160,7 +160,7 @@ export default function AdminPanel() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: "test",
+        userId: "fc9813da-f8f8-4114-8377-59f02e294330",
       }),
     })
 
