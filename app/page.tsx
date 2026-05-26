@@ -15,13 +15,13 @@ import InstrumentsPage from "./components/InstrumentsPage";
 import AdminPanel from "./components/AdminPanel";
 import FilesPage from "./components/FilesPage";
 
-
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+
   const [registerRole, setRegisterRole] = useState("student");
   const [registerName, setRegisterName] = useState("");
   const [registerPhone, setRegisterPhone] = useState("");
@@ -47,11 +47,11 @@ export default function Home() {
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   const isAdmin =
-  profile?.role === "admin" ||
-  user?.email === "l.c.petersen2@gmail.com" ||
-  user?.email === "kartmann@musikschulebadsoden.de" ||
-  user?.email === "info@musikschulebadsoden.de" ||
-  user?.email === "kopp_m@musikschulebadsoden.de";
+    profile?.role === "admin" ||
+    user?.email === "l.c.petersen2@gmail.com" ||
+    user?.email === "kartmann@musikschulebadsoden.de" ||
+    user?.email === "info@musikschulebadsoden.de" ||
+    user?.email === "kopp_m@musikschulebadsoden.de";
 
   const monthName = calendarMonth.toLocaleString("de-DE", {
     month: "long",
@@ -63,15 +63,8 @@ export default function Home() {
     const month = calendarMonth.getMonth();
 
     const firstDay = new Date(year, month, 1);
-
-    const daysInMonth = new Date(
-      year,
-      month + 1,
-      0
-    ).getDate();
-
-    const startOffset =
-      (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startOffset = (firstDay.getDay() + 6) % 7;
 
     const days: Array<number | null> = [];
 
@@ -111,18 +104,45 @@ export default function Home() {
     loadNews();
   }, []);
 
+  useEffect(() => {
+    if (!selectedGroup) return;
+
+    loadMessages();
+
+    const channel = supabase
+      .channel("messages-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "messages",
+        },
+        () => {
+          loadMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedGroup]);
+
   async function checkUser() {
     const { data } = await supabase.auth.getUser();
 
     setUser(data.user);
 
-    const { data: profileData } = await supabase
-  .from("profiles")
-  .select("*")
-  .eq("email", data.user?.email)
-  .single();
+    if (!data.user?.email) return;
 
-setProfile(profileData);
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("email", data.user.email)
+      .single();
+
+    setProfile(profileData);
   }
 
   async function register() {
@@ -144,7 +164,6 @@ setProfile(profileData);
     if (error) {
       alert("Registrierung fehlgeschlagen.");
     } else {
-    
       await supabase.from("profiles").insert({
         email,
         role: registerRole,
@@ -152,17 +171,16 @@ setProfile(profileData);
         phone: registerPhone,
         instrument: registerInstrument,
       });
-    
-      alert("Registrierung erfolgreich.");
+
+      alert("Registrierung erfolgreich. Bitte bestätige deine E-Mail.");
     }
   }
 
   async function login() {
-    const { error } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
       alert("Login fehlgeschlagen.");
@@ -175,6 +193,7 @@ setProfile(profileData);
   async function logout() {
     await supabase.auth.signOut();
     setUser(null);
+    setProfile(null);
   }
 
   async function loadGroups() {
@@ -196,13 +215,11 @@ setProfile(profileData);
       return;
     }
 
-    const { error } = await supabase
-      .from("chat_groups")
-      .insert([
-        {
-          name: newGroup.trim(),
-        },
-      ]);
+    const { error } = await supabase.from("chat_groups").insert([
+      {
+        name: newGroup.trim(),
+      },
+    ]);
 
     if (error) {
       alert("Gruppe konnte nicht erstellt werden.");
@@ -214,16 +231,11 @@ setProfile(profileData);
   }
 
   async function deleteGroup(id: string) {
-    const confirmDelete = confirm(
-      "Gruppe wirklich löschen?"
-    );
+    const confirmDelete = confirm("Gruppe wirklich löschen?");
 
     if (!confirmDelete) return;
 
-    const { error } = await supabase
-      .from("chat_groups")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("chat_groups").delete().eq("id", id);
 
     if (error) {
       alert("Gruppe konnte nicht gelöscht werden.");
@@ -233,31 +245,6 @@ setProfile(profileData);
     alert("Gruppe gelöscht.");
     loadGroups();
   }
-
-  useEffect(() => {
-    if (!selectedGroup) return;
-  
-    loadMessages();
-  
-    const channel = supabase
-      .channel("messages-realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "messages",
-        },
-        () => {
-          loadMessages();
-        }
-      )
-      .subscribe();
-  
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [selectedGroup]);
 
   async function loadMessages() {
     const { data } = await supabase
@@ -284,15 +271,13 @@ setProfile(profileData);
       return;
     }
 
-    const { error } = await supabase
-      .from("messages")
-      .insert([
-        {
-          user_email: user.email,
-          content: message.trim(),
-          group_name: selectedGroup,
-        },
-      ]);
+    const { error } = await supabase.from("messages").insert([
+      {
+        user_email: user.email,
+        content: message.trim(),
+        group_name: selectedGroup,
+      },
+    ]);
 
     if (error) {
       alert("Nachricht konnte nicht gesendet werden.");
@@ -324,17 +309,15 @@ setProfile(profileData);
       return;
     }
 
-    const { error } = await supabase
-      .from("events")
-      .insert([
-        {
-          user_email: user.email,
-          title: eventTitle,
-          event_date: eventDate,
-          event_time: eventTime,
-          description: eventDescription,
-        },
-      ]);
+    const { error } = await supabase.from("events").insert([
+      {
+        user_email: user.email,
+        title: eventTitle,
+        event_date: eventDate,
+        event_time: eventTime,
+        description: eventDescription,
+      },
+    ]);
 
     if (error) {
       alert("Termin konnte nicht gespeichert werden.");
@@ -350,6 +333,7 @@ setProfile(profileData);
 
     loadEvents();
   }
+
   async function loadEvents() {
     if (!user) return;
 
@@ -359,20 +343,19 @@ setProfile(profileData);
       .eq("user_email", user.email)
       .order("event_date", { ascending: true });
 
-    if (data) setEvents(data);
+    if (data) {
+      setEvents(data);
+    }
   }
 
   async function loadNews() {
     try {
       const response = await fetch("/api/news");
-  
       const data = await response.json();
-  
+
       setNews(data);
     } catch {
-      alert(
-        "Musikschul-News konnten nicht geladen werden."
-      );
+      alert("Musikschul-News konnten nicht geladen werden.");
     }
   }
 
@@ -388,11 +371,7 @@ setProfile(profileData);
 
   function getDateString(day: number) {
     const year = calendarMonth.getFullYear();
-
-    const month = String(
-      calendarMonth.getMonth() + 1
-    ).padStart(2, "0");
-
+    const month = String(calendarMonth.getMonth() + 1).padStart(2, "0");
     const date = String(day).padStart(2, "0");
 
     return `${year}-${month}-${date}`;
@@ -401,87 +380,93 @@ setProfile(profileData);
   function getEventsForDay(day: number) {
     const dateString = getDateString(day);
 
-    return events.filter(
-      (event) => event.event_date === dateString
-    );
+    return events.filter((event) => event.event_date === dateString);
   }
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        <div className="bg-zinc-900 p-8 rounded-2xl w-full max-w-md">
-          <h1 className="text-5xl font-bold mb-2">
-            ConnectHub
-          </h1>
+      <main className="min-h-screen bg-[#f7f3ea] text-zinc-900 flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-zinc-200 p-6 sm:p-8">
+          <div className="mb-8">
+            <p className="text-sm font-semibold text-[#d8a928] mb-2">
+              Musikschule Bad Soden
+            </p>
 
-          <p className="text-gray-400 mb-8">
-            Login & Registrierung
-          </p>
+            <h1 className="text-4xl sm:text-5xl font-bold text-[#7a1f1f] mb-2">
+              ConnectHub
+            </h1>
+
+            <p className="text-zinc-500">
+              Login & Registrierung
+            </p>
+          </div>
 
           <input
             type="email"
             placeholder="E-Mail"
             value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-            className="w-full p-4 rounded-xl bg-zinc-800 mb-4"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
           />
 
           <input
             type="password"
             placeholder="Passwort"
             value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-            className="w-full p-4 rounded-xl bg-zinc-800 mb-6"
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-6 outline-none focus:ring-2 focus:ring-[#d8a928]"
           />
 
           <button
             onClick={login}
-            className="w-full bg-blue-600 p-4 rounded-xl mb-4"
+            className="w-full bg-[#7a1f1f] hover:bg-[#651919] transition text-white font-semibold p-4 rounded-xl mb-4"
           >
             Einloggen
           </button>
 
+          <div className="my-6 border-t border-zinc-200" />
+
+          <p className="text-sm font-semibold text-zinc-700 mb-4">
+            Neu registrieren
+          </p>
+
           <select
-  value={registerRole}
-  onChange={(e) => setRegisterRole(e.target.value)}
-  className="w-full p-4 rounded-xl bg-zinc-800 mb-4"
->
-  <option value="student">Schüler</option>
-  <option value="teacher">Lehrer</option>
-  <option value="parent">Eltern</option>
-</select>
+            value={registerRole}
+            onChange={(e) => setRegisterRole(e.target.value)}
+            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+          >
+            <option value="student">Schüler</option>
+            <option value="teacher">Lehrer</option>
+            <option value="parent">Eltern</option>
+          </select>
 
-<input
-  type="text"
-  placeholder="Name"
-  value={registerName}
-  onChange={(e) => setRegisterName(e.target.value)}
-  className="w-full bg-zinc-800 p-4 rounded-xl mb-4"
-/>
+          <input
+            type="text"
+            placeholder="Name"
+            value={registerName}
+            onChange={(e) => setRegisterName(e.target.value)}
+            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+          />
 
-<input
-  type="text"
-  placeholder="Telefon"
-  value={registerPhone}
-  onChange={(e) => setRegisterPhone(e.target.value)}
-  className="w-full bg-zinc-800 p-4 rounded-xl mb-4"
-/>
+          <input
+            type="text"
+            placeholder="Telefon"
+            value={registerPhone}
+            onChange={(e) => setRegisterPhone(e.target.value)}
+            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+          />
 
-<input
-  type="text"
-  placeholder="Instrument"
-  value={registerInstrument}
-  onChange={(e) => setRegisterInstrument(e.target.value)}
-  className="w-full bg-zinc-800 p-4 rounded-xl mb-4"
-/>
+          <input
+            type="text"
+            placeholder="Instrument"
+            value={registerInstrument}
+            onChange={(e) => setRegisterInstrument(e.target.value)}
+            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+          />
 
           <button
             onClick={register}
-            className="w-full bg-green-600 p-4 rounded-xl"
+            className="w-full bg-[#d8a928] hover:bg-[#c49822] transition text-zinc-900 font-semibold p-4 rounded-xl"
           >
             Registrieren
           </button>
@@ -491,94 +476,111 @@ setProfile(profileData);
   }
 
   return (
-    
-    <main className="min-h-screen bg-black text-white p-6 pb-28">
-
-      <p className="text-sm text-gray-400 mb-4">
-  Rolle: {profile?.role}
-</p>
-
+    <main className="min-h-screen bg-[#f7f3ea] text-zinc-900 p-4 sm:p-6 pb-28">
       <div className="max-w-7xl mx-auto">
-      {activePage === "dashboard" && (
-  <Dashboard
-    user={user}
-    logout={logout}
-    setActivePage={setActivePage}
-    isAdmin={isAdmin}
-  />
-)}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-[#d8a928]">
+              Musikschule Bad Soden
+            </p>
 
-<BottomNav setActivePage={setActivePage} />
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#7a1f1f]">
+              ConnectHub
+            </h1>
+          </div>
 
-{activePage === "chat" && (
-  <ChatPage
-    groups={groups}
-    selectedGroup={selectedGroup}
-    setSelectedGroup={setSelectedGroup}
-    isAdmin={isAdmin}
-    deleteGroup={deleteGroup}
-    newGroup={newGroup}
-    setNewGroup={setNewGroup}
-    createGroup={createGroup}
-    message={message}
-    setMessage={setMessage}
-    sendMessage={sendMessage}
-    messages={messages}
-  />
-)}
+          <div className="bg-white border border-zinc-200 rounded-2xl px-4 py-3 shadow-sm">
+            <p className="text-sm text-zinc-500">
+              Rolle
+            </p>
 
-{activePage === "calendar" && (
-  <CalendarPage
-    monthName={monthName}
-    calendarDays={calendarDays}
-    changeMonth={changeMonth}
-    setCalendarMonth={setCalendarMonth}
-    getDateString={getDateString}
-    getEventsForDay={getEventsForDay}
-    setEventDate={setEventDate}
-    eventTitle={eventTitle}
-    setEventTitle={setEventTitle}
-    eventDate={eventDate}
-    eventTime={eventTime}
-    setEventTime={setEventTime}
-    eventDescription={eventDescription}
-    setEventDescription={setEventDescription}
-    createEvent={createEvent}
-    events={events}
-  />
-)}
+            <p className="font-semibold capitalize">
+              {profile?.role || "Benutzer"}
+            </p>
+          </div>
+        </div>
 
-{activePage === "admin" && isAdmin && (
-  <AdminPanel />
-)}
+        {activePage === "dashboard" && (
+          <Dashboard
+            user={user}
+            logout={logout}
+            setActivePage={setActivePage}
+            isAdmin={isAdmin}
+          />
+        )}
 
-{activePage === "profile" && (
-  <ProfilePage user={user} />
-)}
+        {activePage === "chat" && (
+          <ChatPage
+            groups={groups}
+            selectedGroup={selectedGroup}
+            setSelectedGroup={setSelectedGroup}
+            isAdmin={isAdmin}
+            deleteGroup={deleteGroup}
+            newGroup={newGroup}
+            setNewGroup={setNewGroup}
+            createGroup={createGroup}
+            message={message}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+            messages={messages}
+          />
+        )}
 
-{activePage === "courses" && (
-  <CoursesPage />
-)}
+        {activePage === "calendar" && (
+          <CalendarPage
+            monthName={monthName}
+            calendarDays={calendarDays}
+            changeMonth={changeMonth}
+            setCalendarMonth={setCalendarMonth}
+            getDateString={getDateString}
+            getEventsForDay={getEventsForDay}
+            setEventDate={setEventDate}
+            eventTitle={eventTitle}
+            setEventTitle={setEventTitle}
+            eventDate={eventDate}
+            eventTime={eventTime}
+            setEventTime={setEventTime}
+            eventDescription={eventDescription}
+            setEventDescription={setEventDescription}
+            createEvent={createEvent}
+            events={events}
+          />
+        )}
 
-{activePage === "Schedule" && (
-  <SchedulePage />
-)}
+        {activePage === "admin" && isAdmin && (
+          <AdminPanel />
+        )}
 
-{activePage === "instruments" && (
-  <InstrumentsPage />
-)}
+        {activePage === "profile" && (
+          <ProfilePage user={user} />
+        )}
 
-{activePage === "news" && (
-  <NewsPage news={news} />
-)}
-{activePage === "links" && (
-  <LinksPage />
-)}
-{activePage === "files" && (
-  <FilesPage userRole={profile?.role || "student"} />
-)}
+        {activePage === "courses" && (
+          <CoursesPage />
+        )}
 
-  </div>
-  </main>
+        {activePage === "schedule" && (
+          <SchedulePage />
+        )}
+
+        {activePage === "instruments" && (
+          <InstrumentsPage />
+        )}
+
+        {activePage === "news" && (
+          <NewsPage news={news} />
+        )}
+
+        {activePage === "links" && (
+          <LinksPage />
+        )}
+
+        {activePage === "files" && (
+          <FilesPage userRole={profile?.role || "student"} />
+        )}
+      </div>
+
+      <BottomNav setActivePage={setActivePage} />
+    </main>
   );
-  }
+}
