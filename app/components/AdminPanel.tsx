@@ -11,6 +11,7 @@ export default function AdminPanel() {
   const [files, setFiles] = useState<any[]>([]);
   const [userRole, setUserRole] = useState("student");
   const [uploadTarget, setUploadTarget] = useState("all");
+  
 
   useEffect(() => {
     async function loadCurrentRole() {
@@ -216,6 +217,52 @@ export default function AdminPanel() {
 
 </div>
       </div>
+
+      <div className="mt-8">
+  <h3 className="text-xl font-bold mb-4">
+    Benutzer
+  </h3>
+
+  <div className="space-y-3">
+    {users.map((user) => (
+      <div
+        key={user.email}
+        className="bg-zinc-800 p-4 rounded-xl flex justify-between items-center"
+      >
+        <div>
+          <p className="font-bold">{user.email}</p>
+
+          <p className="text-gray-400 text-sm">
+            {user.role}
+          </p>
+        </div>
+
+        <button
+          onClick={async () => {
+            const res = await fetch("/api/news/delete-user", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                userId: user.id,
+              }),
+            })
+
+            const data = await res.json()
+
+            alert(JSON.stringify(data))
+
+            loadUsers()
+          }}
+          className="bg-red-600 px-3 py-2 rounded-lg"
+        >
+          Löschen
+        </button>
+      </div>
+    ))}
+  </div>
+</div>
 
       <p className="text-gray-400 mb-6 mt-6">
         Verwaltungsbereich der Musikschule.
