@@ -9,12 +9,33 @@ export default function AdminPanel() {
   const [search, setSearch] = useState("");
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [files, setFiles] = useState<any[]>([]);
+  const [userRole, setUserRole] = useState("student");
   const [uploadTarget, setUploadTarget] = useState("all");
+
+  useEffect(() => {
+    async function loadCurrentRole() {
+      const { data } = await supabase.auth.getUser();
+  
+      if (!data.user?.email) return;
+  
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("email", data.user.email)
+        .single();
+  
+      if (profile?.role) {
+        setUserRole(profile.role);
+      }
+    }
+  
+    loadCurrentRole();
+  }, []);
 
   useEffect(() => {
     loadUsers();
     loadFiles();
-  }, []);
+  }, [userRole]);
 
   async function loadUsers() {
     const { data } = await supabase
@@ -56,18 +77,32 @@ export default function AdminPanel() {
   }
 
   async function loadFiles() {
-    const { data, error } = await supabase.storage
-      .from("files")
-      .list(`uploads/${uploadTarget}`);
-
-    if (data) {
-      setFiles(data);
-      console.log(data);
+    let folders = ["all"];
+  
+    if (userRole === "admin") {
+      folders = ["all", "student", "teacher", "parent"];
+    } else {
+      folders = ["all", userRole];
     }
-
-    if (error) {
-      console.log(error);
+  
+    const allFiles: any[] = [];
+  
+    for (const folder of folders) {
+      const { data } = await supabase.storage
+        .from("files")
+        .list(`uploads/${folder}`);
+  
+      if (data) {
+        data.forEach((file) => {
+          allFiles.push({
+            ...file,
+            folder,
+          });
+        });
+      }
     }
+  
+    setFiles(allFiles);
   }
 
   return (
