@@ -43,7 +43,7 @@ export default function AdminPanel() {
 
     const { data, error } = await supabase.storage
       .from("files")
-      .upload("uploads/" + fileName, selectedFile);
+      .upload(`uploads/${uploadTarget}/${fileName}`, selectedFile);
 
     if (error) {
       console.log(error);
@@ -58,7 +58,7 @@ export default function AdminPanel() {
   async function loadFiles() {
     const { data, error } = await supabase.storage
       .from("files")
-      .list("uploads");
+      .list(`uploads/${uploadTarget}`);
 
     if (data) {
       setFiles(data);
