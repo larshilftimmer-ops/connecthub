@@ -9,6 +9,7 @@ export default function AdminPanel() {
   const [search, setSearch] = useState("");
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [files, setFiles] = useState<any[]>([]);
+  const [uploadTarget, setUploadTarget] = useState("all");
 
   useEffect(() => {
     loadUsers();
@@ -84,6 +85,17 @@ export default function AdminPanel() {
           }
           className="mb-4"
         />
+
+<select
+  value={uploadTarget}
+  onChange={(e) => setUploadTarget(e.target.value)}
+  className="bg-zinc-700 p-2 rounded-lg mb-4 ml-3"
+>
+  <option value="all">Alle</option>
+  <option value="student">Schüler</option>
+  <option value="teacher">Lehrer</option>
+  <option value="parent">Eltern</option>
+</select> 
 
         <button
           onClick={uploadFile}
