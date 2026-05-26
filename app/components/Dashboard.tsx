@@ -1,3 +1,5 @@
+import FilesPage from "./FilesPage";
+
 type Props = {
     user: any;
     logout: () => void;
@@ -75,6 +77,19 @@ type Props = {
               Infos & Räume
             </p>
           </button>
+
+          <button
+  onClick={() => setActivePage("files")}
+  className="bg-zinc-900 p-5 rounded-3xl text-left"
+>
+  <div className="text-3xl mb-2">📁</div>
+
+  <h3 className="font-bold">Dateien</h3>
+
+  <p className="text-gray-400 text-sm">
+    Dateien & Downloads
+  </p>
+</button>
         </div>
   
         {isAdmin && (

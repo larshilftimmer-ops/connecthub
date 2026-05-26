@@ -13,7 +13,7 @@ import CoursesPage from "./components/CoursePage";
 import SchedulePage from "./components/SchedulePage";
 import InstrumentsPage from "./components/InstrumentsPage";
 import AdminPanel from "./components/AdminPanel";
-
+import FilesPage from "./componentes/FilesPage";
 
 
 export default function Home() {
@@ -573,6 +573,9 @@ setProfile(profileData);
 )}
 {activePage === "links" && (
   <LinksPage />
+)}
+{activePage === "files" && (
+  <FilesPage userRole={profile?.role || "student"} />
 )}
 
   </div>
