@@ -26,6 +26,7 @@ type Props = {
   chatUsers: any[];
   currentUser: any;
   deleteMessage?: (id: string) => void;
+  deleteChat?: (groupName: string) => void;
 };
 
 export default function ChatPage({
@@ -44,11 +45,13 @@ export default function ChatPage({
   chatUsers,
   currentUser,
   deleteMessage,
+  deleteChat,
 }: Props) {
   const [showSidebar, setShowSidebar] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -81,7 +84,6 @@ export default function ChatPage({
   };
 
   const startPrivateChat = (chatUser: any) => {
-    const emails = [currentUser?.email, chatUser.email].sort();
     const privateGroupName = `${chatUser.name || chatUser.email}`;
     setSelectedGroup(privateGroupName);
     setNewGroup(privateGroupName);
@@ -96,6 +98,34 @@ export default function ChatPage({
       hour: "2-digit", 
       minute: "2-digit" 
     });
+  };
+
+  const isPrivateChat = (groupName: string) => {
+    return!groups.find(g => g.name === groupName && g.is_group);
+  };
+
+  const canDeleteChat = selectedGroup && (isAdmin || isPrivateChat(selectedGroup));
+
+  const handleDeleteChat = () => {
+    if (!canDeleteChat) return;
+    setShowDeleteConfirm(selectedGroup);
+  };
+
+  const confirmDeleteChat = () => {
+    if (showDeleteConfirm) {
+      deleteChat?.(showDeleteConfirm);
+      setSelectedGroup("");
+      setShowDeleteConfirm(null);
+    }
+  };
+
+  const handleDeleteGroup = (group: any) => {
+    if (confirm(`Gruppe "${group.name}" wirklich löschen?`)) {
+      deleteGroup(group.id);
+      if (selectedGroup === group.name) {
+        setSelectedGroup("");
+      }
+    }
   };
 
   const filteredGroups = groups.filter((g) =>
@@ -117,7 +147,6 @@ export default function ChatPage({
           showSidebar? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         } absolute lg:relative w-full lg:w-72 h-full bg-[#0F2A52] border-r border-white/5 transition-transform duration-200 z-20 flex flex-col`}
       >
-        {/* Header mit Suche + Plus Button */}
         <div className="p-3 border-b border-white/5 flex gap-2">
           <input
             value={searchQuery}
@@ -136,7 +165,6 @@ export default function ChatPage({
           )}
         </div>
 
-        {/* Chat List - ohne FAB */}
         <div className="flex-1 overflow-y-auto">
           {filteredGroups.length > 0 && (
             <div className="py-2">
@@ -144,10 +172,10 @@ export default function ChatPage({
                 Gruppen
               </p>
               {filteredGroups.map((group) => (
-                <div key={group.id} className="group relative">
+                <div key={group.id} className="group flex items-center hover:bg-white/5 transition">
                   <button
                     onClick={() => setSelectedGroup(group.name)}
-                    className={`w-full px-3 py-2.5 flex items-center gap-3 hover:bg-white/5 transition ${
+                    className={`flex-1 px-3 py-2.5 flex items-center gap-3 ${
                       selectedGroup === group.name? "bg-white/10" : ""
                     }`}
                   >
@@ -160,12 +188,14 @@ export default function ChatPage({
                       </p>
                     </div>
                   </button>
+                  {/* SICHTBARER Löschen Button für Admins */}
                   {isAdmin && (
                     <button
-                      onClick={() => deleteGroup(group.id)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-red-500/20 hover:bg-red-500/40 text-red-300 w-7 h-7 rounded-lg text-xs transition"
+                      onClick={() => handleDeleteGroup(group)}
+                      className="mr-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 w-8 h-8 rounded-lg flex items-center justify-center text-sm transition opacity-0 group-hover:opacity-100"
+                      title="Gruppe löschen"
                     >
-                      ✕
+                      🗑
                     </button>
                   )}
                 </div>
@@ -220,6 +250,16 @@ export default function ChatPage({
                 </h3>
                 <p className="text-xs text-white/40">{messages.length} Nachrichten</p>
               </div>
+              
+              {/* SICHTBARER Chat Löschen Button */}
+              {canDeleteChat && (
+                <button
+                  onClick={handleDeleteChat}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1.5"
+                >
+                  🗑 Löschen
+                </button>
+              )}
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
@@ -240,7 +280,7 @@ export default function ChatPage({
                     <div
                       key={msg.id}
                       className={`flex gap-2 group ${isOwn? "justify-end" : ""} ${
-                !showAvatar? "ml-10" : ""
+             !showAvatar? "ml-10" : ""
                       }`}
                       onMouseEnter={() => setHoveredMessage(msg.id)}
                       onMouseLeave={() => setHoveredMessage(null)}
@@ -268,7 +308,7 @@ export default function ChatPage({
                           <div
                             className={`px-3.5 py-2 rounded-2xl ${
                               isOwn
-                      ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
+                   ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
                               : "bg-[#1A3A5C] text-white rounded-bl-md"
                             }`}
                           >
@@ -352,6 +392,38 @@ export default function ChatPage({
                 className="flex-1 bg-[#00D9FF] disabled:opacity-30 text-[#0B1E3F] py-2.5 rounded-xl font-semibold transition active:scale-95"
               >
                 Erstellen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal für Chat löschen Bestätigung */}
+      {showDeleteConfirm && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowDeleteConfirm(null)}
+        >
+          <div 
+            className="bg-[#0F2A52] border border-red-500/20 rounded-2xl p-6 w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold text-white mb-2">Chat löschen?</h3>
+            <p className="text-white/60 text-sm mb-4">
+              "{showDeleteConfirm}" und alle Nachrichten werden unwiderruflich gelöscht.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(null)}
+                className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2.5 rounded-xl font-semibold transition"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={confirmDeleteChat}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-xl font-semibold transition active:scale-95"
+              >
+                Löschen
               </button>
             </div>
           </div>
