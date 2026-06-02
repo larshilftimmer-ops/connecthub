@@ -78,7 +78,7 @@ export default function Home() {
       days.push(day);
     }
 
-    while (days.length % 7 !== 0) {
+    while (days.length % 7!== 0) {
       days.push(null);
     }
 
@@ -113,8 +113,8 @@ export default function Home() {
     loadMessages();
 
     const channel = supabase
-      .channel("messages-realtime")
-      .on(
+     .channel("messages-realtime")
+     .on(
         "postgres_changes",
         {
           event: "*",
@@ -125,7 +125,7 @@ export default function Home() {
           loadMessages();
         }
       )
-      .subscribe();
+     .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
@@ -140,10 +140,10 @@ export default function Home() {
     if (!data.user?.email) return;
 
     const { data: profileData } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("email", data.user.email)
-      .single();
+     .from("profiles")
+     .select("*")
+     .eq("email", data.user.email)
+     .single();
 
     setProfile(profileData);
   }
@@ -201,45 +201,40 @@ export default function Home() {
 
   async function loadChatUsers() {
     const { data } = await supabase
-      .from("profiles")
-      .select("email, name, role")
-      .order("email", { ascending: true });
-  
+     .from("profiles")
+     .select("email, name, role")
+     .order("email", { ascending: true });
+
     if (data) {
       setChatUsers(data);
     }
   }
-  
+
   async function createPrivateChat(otherEmail: string) {
     if (!user?.email) return;
-  
+
     const emails = [user.email, otherEmail].sort();
-  
-    const groupName =
-      `Privat: ${emails[0]} ↔ ${emails[1]}`;
-  
-    const exists = groups.find(
-      (group) => group.name === groupName
-    );
-  
+
+    const groupName = `Privat: ${emails[0]} ↔ ${emails[1]}`;
+
+    const exists = groups.find((group) => group.name === groupName);
+
     if (!exists) {
-      await supabase
-        .from("chat_groups")
-        .insert({
-          name: groupName,
-        });
-  
+      await supabase.from("chat_groups").insert({
+        name: groupName,
+      });
+
       await loadGroups();
     }
-  
+
     setSelectedGroup(groupName);
   }
 
   async function loadGroups() {
     const { data } = await supabase
-      .from("chat_groups")
-      .select("*")
-      .order("created_at", {
+     .from("chat_groups")
+     .select("*")
+     .order("created_at", {
         ascending: true,
       });
 
@@ -270,10 +265,6 @@ export default function Home() {
   }
 
   async function deleteGroup(id: string) {
-    const confirmDelete = confirm("Gruppe wirklich löschen?");
-
-    if (!confirmDelete) return;
-
     const { error } = await supabase.from("chat_groups").delete().eq("id", id);
 
     if (error) {
@@ -281,16 +272,15 @@ export default function Home() {
       return;
     }
 
-    alert("Gruppe gelöscht.");
     loadGroups();
   }
 
   async function loadMessages() {
     const { data } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("group_name", selectedGroup)
-      .order("created_at", {
+     .from("messages")
+     .select("*")
+     .eq("group_name", selectedGroup)
+     .order("created_at", {
         ascending: false,
       });
 
@@ -326,6 +316,51 @@ export default function Home() {
     setMessage("");
     loadMessages();
   }
+
+  // ============================================
+  // NEUE LÖSCHEN FUNKTIONEN - HIER EINGEFÜGT
+  // ============================================
+  
+  async function deleteMessage(id: string) {
+    const { error } = await supabase.from("messages").delete().eq("id", id);
+    
+    if (error) {
+      alert("Nachricht konnte nicht gelöscht werden.");
+      return;
+    }
+    
+    loadMessages();
+  }
+
+  async function deleteChat(groupName: string) {
+    // Erst alle Nachrichten der Gruppe löschen
+    const { error: msgError } = await supabase
+     .from("messages")
+     .delete()
+     .eq("group_name", groupName);
+    
+    if (msgError) {
+      alert("Nachrichten konnten nicht gelöscht werden.");
+      return;
+    }
+
+    // Dann die Gruppe selbst löschen
+    const { error: groupError } = await supabase
+     .from("chat_groups")
+     .delete()
+     .eq("name", groupName);
+    
+    if (groupError) {
+      alert("Chat konnte nicht gelöscht werden.");
+      return;
+    }
+
+    loadGroups();
+    setMessages([]);
+    setSelectedGroup("");
+  }
+
+  // ============================================
 
   async function createEvent() {
     if (!user) {
@@ -377,10 +412,10 @@ export default function Home() {
     if (!user) return;
 
     const { data } = await supabase
-      .from("events")
-      .select("*")
-      .eq("user_email", user.email)
-      .order("event_date", { ascending: true });
+     .from("events")
+     .select("*")
+     .eq("user_email", user.email)
+     .order("event_date", { ascending: true });
 
     if (data) {
       setEvents(data);
@@ -435,9 +470,7 @@ export default function Home() {
               ConnectHub
             </h1>
 
-            <p className="text-zinc-500">
-              Login & Registrierung
-            </p>
+            <p className="text-zinc-500">Login & Registrierung</p>
           </div>
 
           <input
@@ -529,9 +562,7 @@ export default function Home() {
           </div>
 
           <div className="bg-white border border-zinc-200 rounded-2xl px-4 py-3 shadow-sm">
-            <p className="text-sm text-zinc-500">
-              Rolle
-            </p>
+            <p className="text-sm text-zinc-500">Rolle</p>
 
             <p className="font-semibold capitalize">
               {profile?.role || "Benutzer"}
@@ -564,6 +595,8 @@ export default function Home() {
             messages={messages}
             chatUsers={chatUsers}
             currentUser={user}
+            deleteMessage={deleteMessage}
+            deleteChat={deleteChat}
           />
         )}
 
@@ -588,37 +621,21 @@ export default function Home() {
           />
         )}
 
-        {activePage === "admin" && isAdmin && (
-          <AdminPanel />
-        )}
+        {activePage === "admin" && isAdmin && <AdminPanel />}
 
-        {activePage === "profile" && (
-          <ProfilePage user={user} />
-        )}
+        {activePage === "profile" && <ProfilePage user={user} />}
 
-        {activePage === "courses" && (
-          <CoursesPage />
-        )}
+        {activePage === "courses" && <CoursesPage />}
 
-        {activePage === "schedule" && (
-          <SchedulePage />
-        )}
+        {activePage === "schedule" && <SchedulePage />}
 
-        {activePage === "instruments" && (
-          <InstrumentsPage />
-        )}
+        {activePage === "instruments" && <InstrumentsPage />}
 
-        {activePage === "news" && (
-          <NewsPage news={news} />
-        )}
+        {activePage === "news" && <NewsPage news={news} />}
 
-        {activePage === "links" && (
-          <LinksPage />
-        )}
+        {activePage === "links" && <LinksPage />}
 
-        {activePage === "files" && (
-          <FilesPage userRole={profile?.role || "student"} />
-        )}
+        {activePage === "files" && <FilesPage userRole={profile?.role || "student"} />}
       </div>
 
       <BottomNav setActivePage={setActivePage} />
