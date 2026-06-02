@@ -188,7 +188,6 @@ export default function ChatPage({
                       </p>
                     </div>
                   </button>
-                  {/* SICHTBARER Löschen Button für Admins */}
                   {isAdmin && (
                     <button
                       onClick={() => handleDeleteGroup(group)}
@@ -234,14 +233,15 @@ export default function ChatPage({
       <div className="flex-1 flex flex-col bg-[#0B1E3F]">
         {selectedGroup? (
           <>
-            <div className="bg-[#0F2A52] border-b border-white/5 px-4 py-3 flex items-center gap-3">
+            {/* Chat Header - FIXED */}
+            <div className="bg-[#0F2A52] border-b border-white/5 px-3 py-2.5 flex items-center gap-2">
               <button
                 onClick={() => setShowSidebar(true)}
-                className="lg:hidden text-white/60 hover:text-white"
+                className="lg:hidden text-white/60 hover:text-white shrink-0"
               >
                 ←
               </button>
-              <div className="w-9 h-9 rounded-full bg-[#00D9FF]/20 flex items-center justify-center text-[#00D9FF]">
+              <div className="w-8 h-8 rounded-full bg-[#00D9FF]/20 flex items-center justify-center text-[#00D9FF] text-sm shrink-0">
                 #
               </div>
               <div className="min-w-0 flex-1">
@@ -251,13 +251,13 @@ export default function ChatPage({
                 <p className="text-xs text-white/40">{messages.length} Nachrichten</p>
               </div>
               
-              {/* SICHTBARER Chat Löschen Button */}
               {canDeleteChat && (
                 <button
                   onClick={handleDeleteChat}
-                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1.5"
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 w-9 h-9 rounded-lg flex items-center justify-center text-lg active:scale-95 transition shrink-0"
+                  title="Chat löschen"
                 >
-                  🗑 Löschen
+                  🗑
                 </button>
               )}
             </div>
@@ -280,7 +280,7 @@ export default function ChatPage({
                     <div
                       key={msg.id}
                       className={`flex gap-2 group ${isOwn? "justify-end" : ""} ${
-             !showAvatar? "ml-10" : ""
+          !showAvatar? "ml-10" : ""
                       }`}
                       onMouseEnter={() => setHoveredMessage(msg.id)}
                       onMouseLeave={() => setHoveredMessage(null)}
@@ -308,7 +308,7 @@ export default function ChatPage({
                           <div
                             className={`px-3.5 py-2 rounded-2xl ${
                               isOwn
-                   ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
+                ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
                               : "bg-[#1A3A5C] text-white rounded-bl-md"
                             }`}
                           >
