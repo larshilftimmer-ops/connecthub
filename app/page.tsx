@@ -317,39 +317,33 @@ export default function Home() {
     loadMessages();
   }
 
-  // ============================================
-  // NEUE LÖSCHEN FUNKTIONEN - HIER EINGEFÜGT
-  // ============================================
-  
   async function deleteMessage(id: string) {
     const { error } = await supabase.from("messages").delete().eq("id", id);
-    
+
     if (error) {
       alert("Nachricht konnte nicht gelöscht werden.");
       return;
     }
-    
+
     loadMessages();
   }
 
   async function deleteChat(groupName: string) {
-    // Erst alle Nachrichten der Gruppe löschen
     const { error: msgError } = await supabase
      .from("messages")
      .delete()
      .eq("group_name", groupName);
-    
+
     if (msgError) {
       alert("Nachrichten konnten nicht gelöscht werden.");
       return;
     }
 
-    // Dann die Gruppe selbst löschen
     const { error: groupError } = await supabase
      .from("chat_groups")
      .delete()
      .eq("name", groupName);
-    
+
     if (groupError) {
       alert("Chat konnte nicht gelöscht werden.");
       return;
@@ -359,8 +353,6 @@ export default function Home() {
     setMessages([]);
     setSelectedGroup("");
   }
-
-  // ============================================
 
   async function createEvent() {
     if (!user) {
@@ -459,18 +451,32 @@ export default function Home() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#f7f3ea] text-zinc-900 flex items-center justify-center p-4 sm:p-6">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-zinc-200 p-6 sm:p-8">
-          <div className="mb-8">
-            <p className="text-sm font-semibold text-[#d8a928] mb-2">
+      <main className="min-h-screen bg-gradient-to-br from-[#0B1E3F] via-[#0D2247] to-[#0B1E3F] text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+        {/* Animated Background Glow */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#00D9FF]/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#00D9FF]/5 rounded-full blur-3xl animate-pulse delay-1000" />
+        
+        {/* Musiknoten */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[15%] left-[10%] text-[#00D9FF]/10 text-6xl animate-pulse">♪</div>
+          <div className="absolute top-[65%] right-[12%] text-[#00D9FF]/10 text-8xl animate-pulse delay-300">♫</div>
+          <div className="absolute bottom-[20%] left-[20%] text-[#00D9FF]/10 text-5xl animate-pulse delay-700">♬</div>
+        </div>
+
+        <div className="w-full max-w-md bg-[#0F2A52]/60 backdrop-blur-xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-white/10 p-6 sm:p-8 relative z-10">
+          <div className="mb-8 text-center">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#00D9FF] to-[#0099FF] flex items-center justify-center text-4xl shadow-[0_0_40px_rgba(0,217,255,0.5)] mx-auto mb-4">
+              🎵
+            </div>
+            <p className="text-sm font-semibold text-[#00D9FF] mb-2">
               Musikschule Bad Soden
             </p>
 
-            <h1 className="text-4xl sm:text-5xl font-bold text-[#7a1f1f] mb-2">
-              ConnectHub
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
+              Bad Sodify
             </h1>
 
-            <p className="text-zinc-500">Login & Registrierung</p>
+            <p className="text-white/60">Login & Registrierung</p>
           </div>
 
           <input
@@ -478,7 +484,7 @@ export default function Home() {
             placeholder="E-Mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+            className="w-full p-4 rounded-xl bg-white/5 border border-white/10 mb-4 outline-none focus:ring-2 focus:ring-[#00D9FF] focus:bg-white/10 text-white placeholder:text-white/30 transition-all"
           />
 
           <input
@@ -486,30 +492,30 @@ export default function Home() {
             placeholder="Passwort"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-6 outline-none focus:ring-2 focus:ring-[#d8a928]"
+            className="w-full p-4 rounded-xl bg-white/5 border border-white/10 mb-6 outline-none focus:ring-2 focus:ring-[#00D9FF] focus:bg-white/10 text-white placeholder:text-white/30 transition-all"
           />
 
           <button
             onClick={login}
-            className="w-full bg-[#7a1f1f] hover:bg-[#651919] transition text-white font-semibold p-4 rounded-xl mb-4"
+            className="w-full bg-[#00D9FF] hover:bg-[#00D9FF]/90 transition text-[#0B1E3F] font-bold p-4 rounded-xl mb-4 shadow-[0_0_30px_rgba(0,217,255,0.3)] hover:shadow-[0_0_40px_rgba(0,217,255,0.5)] active:scale-95"
           >
             Einloggen
           </button>
 
-          <div className="my-6 border-t border-zinc-200" />
+          <div className="my-6 border-t border-white/10" />
 
-          <p className="text-sm font-semibold text-zinc-700 mb-4">
+          <p className="text-sm font-semibold text-white/70 mb-4">
             Neu registrieren
           </p>
 
           <select
             value={registerRole}
             onChange={(e) => setRegisterRole(e.target.value)}
-            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+            className="w-full p-4 rounded-xl bg-white/5 border border-white/10 mb-4 outline-none focus:ring-2 focus:ring-[#00D9FF] focus:bg-white/10 text-white transition-all"
           >
-            <option value="student">Schüler</option>
-            <option value="teacher">Lehrer</option>
-            <option value="parent">Eltern</option>
+            <option value="student" className="bg-[#0F2A52]">Schüler</option>
+            <option value="teacher" className="bg-[#0F2A52]">Lehrer</option>
+            <option value="parent" className="bg-[#0F2A52]">Eltern</option>
           </select>
 
           <input
@@ -517,7 +523,7 @@ export default function Home() {
             placeholder="Name"
             value={registerName}
             onChange={(e) => setRegisterName(e.target.value)}
-            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+            className="w-full p-4 rounded-xl bg-white/5 border border-white/10 mb-4 outline-none focus:ring-2 focus:ring-[#00D9FF] focus:bg-white/10 text-white placeholder:text-white/30 transition-all"
           />
 
           <input
@@ -525,7 +531,7 @@ export default function Home() {
             placeholder="Telefon"
             value={registerPhone}
             onChange={(e) => setRegisterPhone(e.target.value)}
-            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+            className="w-full p-4 rounded-xl bg-white/5 border border-white/10 mb-4 outline-none focus:ring-2 focus:ring-[#00D9FF] focus:bg-white/10 text-white placeholder:text-white/30 transition-all"
           />
 
           <input
@@ -533,12 +539,12 @@ export default function Home() {
             placeholder="Instrument"
             value={registerInstrument}
             onChange={(e) => setRegisterInstrument(e.target.value)}
-            className="w-full p-4 rounded-xl bg-[#f7f3ea] border border-zinc-200 mb-4 outline-none focus:ring-2 focus:ring-[#d8a928]"
+            className="w-full p-4 rounded-xl bg-white/5 border border-white/10 mb-4 outline-none focus:ring-2 focus:ring-[#00D9FF] focus:bg-white/10 text-white placeholder:text-white/30 transition-all"
           />
 
           <button
             onClick={register}
-            className="w-full bg-[#d8a928] hover:bg-[#c49822] transition text-zinc-900 font-semibold p-4 rounded-xl"
+            className="w-full bg-white/10 hover:bg-white/15 border border-[#00D9FF]/30 hover:border-[#00D9FF]/50 transition text-white font-semibold p-4 rounded-xl active:scale-95"
           >
             Registrieren
           </button>
@@ -548,23 +554,27 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f3ea] text-zinc-900 p-4 sm:p-6 pb-28">
-      <div className="max-w-7xl mx-auto">
+    <main className="min-h-screen bg-gradient-to-br from-[#0B1E3F] via-[#0D2247] to-[#0B1E3F] text-white p-4 sm:p-6 pb-28 relative">
+      {/* Animated Background Glow */}
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-[#00D9FF]/5 rounded-full blur-3xl animate-pulse pointer-events-none" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-[#00D9FF]/5 rounded-full blur-3xl animate-pulse delay-1000 pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-[#d8a928]">
+            <p className="text-sm font-semibold text-[#00D9FF]">
               Musikschule Bad Soden
             </p>
 
-            <h1 className="text-3xl sm:text-4xl font-bold text-[#7a1f1f]">
-              ConnectHub
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">
+              Bad Sodify
             </h1>
           </div>
 
-          <div className="bg-white border border-zinc-200 rounded-2xl px-4 py-3 shadow-sm">
-            <p className="text-sm text-zinc-500">Rolle</p>
+          <div className="bg-[#0F2A52]/60 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+            <p className="text-sm text-white/60">Rolle</p>
 
-            <p className="font-semibold capitalize">
+            <p className="font-semibold capitalize text-[#00D9FF]">
               {profile?.role || "Benutzer"}
             </p>
           </div>
