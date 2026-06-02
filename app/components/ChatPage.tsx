@@ -25,6 +25,7 @@ type Props = {
   messages: Message[];
   chatUsers: any[];
   currentUser: any;
+  deleteMessage?: (id: string) => void;
 };
 
 export default function ChatPage({
@@ -42,13 +43,13 @@ export default function ChatPage({
   messages,
   chatUsers,
   currentUser,
+  deleteMessage,
 }: Props) {
   const [showSidebar, setShowSidebar] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,14 +60,6 @@ export default function ChatPage({
       setShowSidebar(false);
     }
   }, [selectedGroup]);
-
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -110,8 +103,8 @@ export default function ChatPage({
   );
 
   const filteredUsers = chatUsers
- .filter((u) => u.email!== currentUser?.email)
- .filter((u) =>
+.filter((u) => u.email!== currentUser?.email)
+.filter((u) =>
       `${u.name} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -124,57 +117,62 @@ export default function ChatPage({
           showSidebar? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         } absolute lg:relative w-full lg:w-72 h-full bg-[#0F2A52] border-r border-white/5 transition-transform duration-200 z-20 flex flex-col`}
       >
-        {/* Search */}
-        <div className="p-3 border-b border-white/5">
+        {/* Header mit Suche + Plus Button */}
+        <div className="p-3 border-b border-white/5 flex gap-2">
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Suchen..."
-            className="w-full bg-white/5 border-0 text-white text-sm px-3 py-2 rounded-lg outline-none focus:bg-white/10 placeholder:text-white/30"
+            className="flex-1 bg-white/5 border-0 text-white text-sm px-3 py-2 rounded-lg outline-none focus:bg-white/10 placeholder:text-white/30"
           />
+          {isAdmin && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-[#00D9FF] hover:bg-[#00D9FF]/90 text-[#0B1E3F] w-9 h-9 rounded-lg flex items-center justify-center text-xl font-light active:scale-95 transition shrink-0"
+              title="Neue Gruppe"
+            >
+              +
+            </button>
+          )}
         </div>
 
-        {/* Chat List */}
-        <div className="flex-1 overflow-y-auto relative">
-          {/* Gruppen */}
+        {/* Chat List - ohne FAB */}
+        <div className="flex-1 overflow-y-auto">
           {filteredGroups.length > 0 && (
             <div className="py-2">
               <p className="px-3 py-1 text-xs font-semibold text-white/40 uppercase">
                 Gruppen
               </p>
               {filteredGroups.map((group) => (
-                <button
-                  key={group.id}
-                  onClick={() => setSelectedGroup(group.name)}
-                  className={`w-full px-3 py-2.5 flex items-center gap-3 hover:bg-white/5 transition group ${
-                    selectedGroup === group.name? "bg-white/10" : ""
-                  }`}
-                >
-                  <div className="w-11 h-11 rounded-full bg-[#00D9FF]/20 flex items-center justify-center text-[#00D9FF] text-lg shrink-0">
-                    #
-                  </div>
-                  <div className="min-w-0 flex-1 text-left">
-                    <p className="font-medium text-white text-sm truncate">
-                      {group.name}
-                    </p>
-                  </div>
+                <div key={group.id} className="group relative">
+                  <button
+                    onClick={() => setSelectedGroup(group.name)}
+                    className={`w-full px-3 py-2.5 flex items-center gap-3 hover:bg-white/5 transition ${
+                      selectedGroup === group.name? "bg-white/10" : ""
+                    }`}
+                  >
+                    <div className="w-11 h-11 rounded-full bg-[#00D9FF]/20 flex items-center justify-center text-[#00D9FF] text-lg shrink-0">
+                      #
+                    </div>
+                    <div className="min-w-0 flex-1 text-left">
+                      <p className="font-medium text-white text-sm truncate">
+                        {group.name}
+                      </p>
+                    </div>
+                  </button>
                   {isAdmin && (
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteGroup(group.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-red-400 text-sm transition"
+                      onClick={() => deleteGroup(group.id)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-red-500/20 hover:bg-red-500/40 text-red-300 w-7 h-7 rounded-lg text-xs transition"
                     >
                       ✕
                     </button>
                   )}
-                </button>
+                </div>
               ))}
             </div>
           )}
 
-          {/* Personen */}
           {filteredUsers.length > 0 && (
             <div className="py-2">
               <p className="px-3 py-1 text-xs font-semibold text-white/40 uppercase">
@@ -198,16 +196,6 @@ export default function ChatPage({
                 </button>
               ))}
             </div>
-          )}
-
-          {/* FAB für Gruppe erstellen */}
-          {isAdmin && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="absolute bottom-4 right-4 w-14 h-14 bg-[#00D9FF] hover:bg-[#00D9FF]/90 text-[#0B1E3F] rounded-full shadow-lg shadow-[#00D9FF]/30 flex items-center justify-center text-2xl font-light active:scale-95 transition"
-            >
-              +
-            </button>
           )}
         </div>
       </div>
@@ -246,13 +234,16 @@ export default function ChatPage({
                 messages.map((msg, idx) => {
                   const isOwn = msg.user_email === currentUser?.email;
                   const showAvatar = idx === 0 || messages[idx - 1].user_email!== msg.user_email;
+                  const canDelete = isOwn || isAdmin;
                   
                   return (
                     <div
                       key={msg.id}
-                      className={`flex gap-2 ${isOwn? "justify-end" : ""} ${
-                    !showAvatar? "ml-10" : ""
+                      className={`flex gap-2 group ${isOwn? "justify-end" : ""} ${
+                !showAvatar? "ml-10" : ""
                       }`}
+                      onMouseEnter={() => setHoveredMessage(msg.id)}
+                      onMouseLeave={() => setHoveredMessage(null)}
                     >
                       {!isOwn && showAvatar && (
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00D9FF] to-[#0099CC] flex items-center justify-center text-[#0B1E3F] text-xs font-bold shrink-0 mt-1">
@@ -265,16 +256,26 @@ export default function ChatPage({
                             {msg.user_email} · {formatTime(msg.created_at)}
                           </p>
                         )}
-                        <div
-                          className={`px-3.5 py-2 rounded-2xl ${
-                            isOwn
-                          ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
+                        <div className="relative flex items-start gap-2">
+                          {canDelete && hoveredMessage === msg.id && (
+                            <button
+                              onClick={() => deleteMessage?.(msg.id)}
+                              className="bg-red-500/20 hover:bg-red-500/40 text-red-300 px-2 py-1 rounded-lg text-xs transition shrink-0"
+                            >
+                              Löschen
+                            </button>
+                          )}
+                          <div
+                            className={`px-3.5 py-2 rounded-2xl ${
+                              isOwn
+                      ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
                               : "bg-[#1A3A5C] text-white rounded-bl-md"
-                          }`}
-                        >
-                          <p className="text-sm leading-relaxed break-words">
-                            {msg.content}
-                          </p>
+                            }`}
+                          >
+                            <p className="text-sm leading-relaxed break-words">
+                              {msg.content}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -287,7 +288,6 @@ export default function ChatPage({
             <div className="bg-[#0F2A52] border-t border-white/5 p-3">
               <div className="flex items-end gap-2">
                 <input
-                  ref={inputRef}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -330,7 +330,7 @@ export default function ChatPage({
             className="bg-[#0F2A52] border border-white/10 rounded-2xl p-6 w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-white mb-4">Neue Gruppe</h3>
+            <h3 className="text-lg font-bold text-white mb-4">Neue Gruppe erstellen</h3>
             <input
               value={newGroup}
               onChange={(e) => setNewGroup(e.target.value)}
