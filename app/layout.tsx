@@ -21,8 +21,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Bad Sodify - Musikschule Bad Soden",
-  description: "Deine Musikschul Plattform - Kurse, Termine, Community",
+  title: "Bad Sodify Music - Freie Musikschule in Bad Soden e.V.",
+  description: "Die Plattform für - Kurse, Termine, Community",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
