@@ -97,7 +97,7 @@ export default function Home() {
             user={user}
             profile={profile}
             logout={logout}
-            setActivePage={setActivePage}
+            setActivePage={(page) => setActivePage(page as PageType)}
             isAdmin={isAdmin}
           />
         )}
