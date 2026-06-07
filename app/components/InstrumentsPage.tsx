@@ -1,7 +1,19 @@
 "use client";
 
+import { useState } from "react";
+
+type Instrument = {
+  id: number;
+  icon: string;
+  name: string;
+  description: string;
+  rooms: string;
+  available: number;
+  category: string;
+};
+
 export default function InstrumentsPage() {
-  const instruments = [
+  const [instruments] = useState<Instrument[]>([
     {
       id: 1,
       icon: "🎹",
@@ -56,17 +68,17 @@ export default function InstrumentsPage() {
       available: 2,
       category: "Vokal",
     },
-  ];
+  ]);
 
   const totalInstruments = instruments.reduce((sum, i) => sum + i.available, 0);
 
   return (
     <div className="w-full h-[calc(100vh-7rem)] bg-gradient-to-br from-[#0B1E3F] via-[#0D2247] to-[#0B1E3F] rounded-2xl overflow-hidden flex flex-col relative">
-      
+
       {/* Animated Background Glow */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#00D9FF]/5 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00D9FF]/5 rounded-full blur-3xl animate-pulse delay-1000" />
-      
+
       {/* Header */}
       <div className="bg-[#0F2A52]/80 backdrop-blur-xl border-b border-white/10 px-4 py-4 relative z-10">
         <h2 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
