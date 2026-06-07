@@ -469,7 +469,7 @@ export default function Home() {
               🎵
             </div>
             <p className="text-sm font-semibold text-[#00D9FF] mb-2">
-              Musikschule Bad Soden
+              Freie Musikschule in Bad Soden e.V.
             </p>
 
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
