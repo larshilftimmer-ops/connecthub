@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../supabase";
 
-type Props = {
-  user: any;
-};
-
-export default function ProfilePage({ user }: Props) {
+export default function ProfilePage() {
+  const { user, logout } = useAuth();
+  
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [instrument, setInstrument] = useState("");
@@ -16,15 +15,19 @@ export default function ProfilePage({ user }: Props) {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    if (user?.email) {
+      loadProfile();
+    }
+  }, [user]);
 
   async function loadProfile() {
+    if (!user?.email) return;
+    
     const { data } = await supabase
-     .from("profiles")
-     .select("*")
-     .eq("email", user.email)
-     .single();
+   .from("profiles")
+   .select("*")
+   .eq("email", user.email)
+   .single();
 
     if (data) {
       setName(data.name || "");
@@ -34,17 +37,18 @@ export default function ProfilePage({ user }: Props) {
   }
 
   async function saveProfile() {
+    if (!user?.email) return;
     setLoading(true);
     setMessage(null);
     
     const { error } = await supabase
-     .from("profiles")
-     .update({
+   .from("profiles")
+   .update({
         name,
         phone,
         instrument,
       })
-     .eq("email", user.email);
+   .eq("email", user.email);
 
     setLoading(false);
 
@@ -80,6 +84,14 @@ export default function ProfilePage({ user }: Props) {
     setNewPassword("");
     setMessage({ type: 'success', text: 'Passwort erfolgreich geändert!' });
     setTimeout(() => setMessage(null), 3000);
+  }
+
+  if (!user) {
+    return (
+      <div className="w-full h-[calc(100vh-7rem)] bg-[#0B1E3F] rounded-2xl flex items-center justify-center">
+        <div className="text-white/40">Nicht eingeloggt</div>
+      </div>
+    );
   }
 
   return (
@@ -224,7 +236,7 @@ export default function ProfilePage({ user }: Props) {
 
             <button
               onClick={changePassword}
-              disabled={loading || !newPassword.trim()}
+              disabled={loading ||!newPassword.trim()}
               className="w-full bg-red-500/20 hover:bg-red-500/30 disabled:bg-white/5 disabled:text-white/30 border border-red-500/30 hover:border-red-500/50 text-red-400 py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] disabled:shadow-none flex items-center justify-center gap-2"
             >
               <span>🔄</span> Passwort ändern
