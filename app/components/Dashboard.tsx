@@ -1,5 +1,6 @@
 type Props = {
   user: any;
+  profile: any;
   logout: () => void;
   setActivePage: (page: string) => void;
   isAdmin: boolean;
@@ -7,6 +8,7 @@ type Props = {
 
 export default function Dashboard({
   user,
+  profile,
   logout,
   setActivePage,
   isAdmin,
