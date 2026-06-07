@@ -11,6 +11,7 @@ type Message = {
 };
 
 type Props = {
+  user: any;
   groups: any[];
   selectedGroup: string;
   setSelectedGroup: (group: string) => void;
@@ -30,6 +31,7 @@ type Props = {
 };
 
 export default function ChatPage({
+  user,
   groups,
   selectedGroup,
   setSelectedGroup,
