@@ -102,17 +102,17 @@ export default function Home() {
           />
         )}
 
-        {activePage === "chat" && <ChatPage user={user} />}
-        {activePage === "calendar" && <CalendarPage user={user} />}
+        {activePage === "chat" && <ChatPage />}
+        {activePage === "calendar" && <CalendarPage />}
         {activePage === "admin" && isAdmin && <AdminPanel />}
-        {activePage === "profile" && <ProfilePage user={user} profile={profile} />}
+        {activePage === "profile" && <ProfilePage />}
         {activePage === "courses" && <CoursesPage />}
-        {activePage === "schedule" && <SchedulePage user={user} />}
+        {activePage === "schedule" && <SchedulePage />}
         {activePage === "instruments" && <InstrumentsPage />}
         {activePage === "news" && <NewsPage />}
         {activePage === "links" && <LinksPage />}
-        {activePage === "files" && <FilesPage userRole={profile?.role || "student"} />}
-        {activePage === "booking" && <BookingPage user={user} />}
+        {activePage === "files" && <FilesPage />}
+        {activePage === "booking" && <BookingPage />}
       </div>
 
       <BottomNav activePage={activePage} setActivePage={setActivePage} />

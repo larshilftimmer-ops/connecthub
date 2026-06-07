@@ -1,60 +1,125 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { useProfile } from "../hooks/useProfile";
+import { supabase } from "../supabase";
 
 type Message = {
   id: string;
   user_email: string;
   content: string;
   created_at: string;
+  group_name: string;
   read_by?: string[];
 };
 
-type Props = {
-  user: any;
-  groups: any[];
-  selectedGroup: string;
-  setSelectedGroup: (group: string) => void;
-  isAdmin: boolean;
-  deleteGroup: (id: string) => void;
-  newGroup: string;
-  setNewGroup: (value: string) => void;
-  createGroup: () => void;
-  message: string;
-  setMessage: (value: string) => void;
-  sendMessage: () => void;
-  messages: Message[];
-  chatUsers: any[];
-  currentUser: any;
-  deleteMessage?: (id: string) => void;
-  deleteChat?: (groupName: string) => void;
+type Group = {
+  id: string;
+  name: string;
+  is_group: boolean;
+  created_by: string;
+  created_at: string;
 };
 
-export default function ChatPage({
-  user,
-  groups,
-  selectedGroup,
-  setSelectedGroup,
-  isAdmin,
-  deleteGroup,
-  newGroup,
-  setNewGroup,
-  createGroup,
-  message,
-  setMessage,
-  sendMessage,
-  messages,
-  chatUsers,
-  currentUser,
-  deleteMessage,
-  deleteChat,
-}: Props) {
+export default function ChatPage() {
+  const { user } = useAuth();
+  const { profile } = useProfile(user?.email);
+  
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [newGroup, setNewGroup] = useState("");
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatUsers, setChatUsers] = useState<any[]>([]);
+  
   const [showSidebar, setShowSidebar] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const currentUser = user;
+  const isAdmin = 
+    profile?.role === "admin" ||
+    ["l.c.petersen2@gmail.com", "kartmann@musikschulebadsoden.de", "info@musikschulebadsoden.de", "kopp_m@musikschulebadsoden.de"].includes(user?.email || "");
+
+  // Supabase: Groups laden
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchGroups = async () => {
+      const { data, error } = await supabase
+      .from('groups')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+      if (!error) setGroups(data || []);
+    };
+    
+    fetchGroups();
+
+    // Realtime für Groups
+    const channel = supabase
+    .channel('groups')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, fetchGroups)
+    .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, );
+
+  // Supabase: Users laden
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchUsers = async () => {
+      const { data, error } = await supabase
+      .from('profiles')
+      .select('id, email, name, role');
+      
+      if (!error) setChatUsers(data || []);
+    };
+    
+    fetchUsers();
+  }, );
+
+  // Supabase: Messages laden + Realtime
+  useEffect(() => {
+    if (!selectedGroup ||!user) return;
+    
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('group_name', selectedGroup)
+      .order('created_at', { ascending: true });
+      
+      if (!error) setMessages(data || []);
+    };
+    
+    fetchMessages();
+
+    // Realtime Subscription
+    const channel = supabase
+    .channel(`messages:${selectedGroup}`)
+    .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'messages', 
+          filter: `group_name=eq.${selectedGroup}` 
+        },
+        () => fetchMessages()
+      )
+    .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedGroup, user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -65,6 +130,47 @@ export default function ChatPage({
       setShowSidebar(false);
     }
   }, [selectedGroup]);
+
+  const sendMessage = async () => {
+    if (!message.trim() ||!selectedGroup ||!user?.email) return;
+    
+    const { error } = await supabase.from('messages').insert({
+      content: message.trim(),
+      user_email: user.email,
+      group_name: selectedGroup,
+    });
+    
+    if (!error) setMessage("");
+  };
+
+  const createGroup = async () => {
+    if (!newGroup.trim() ||!user?.email) return;
+    
+    const { error } = await supabase.from('groups').insert({
+      name: newGroup.trim(),
+      is_group: true,
+      created_by: user.email,
+    });
+    
+    if (!error) {
+      setNewGroup("");
+      setShowCreateModal(false);
+    }
+  };
+
+  const deleteGroup = async (id: string) => {
+    await supabase.from('messages').delete().eq('group_name', groups.find(g => g.id === id)?.name);
+    await supabase.from('groups').delete().eq('id', id);
+  };
+
+  const deleteMessage = async (id: string) => {
+    await supabase.from('messages').delete().eq('id', id);
+  };
+
+  const deleteChat = async (groupName: string) => {
+    await supabase.from('messages').delete().eq('group_name', groupName);
+    await supabase.from('groups').delete().eq('name', groupName);
+  };
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -81,15 +187,26 @@ export default function ChatPage({
   const handleCreateGroup = () => {
     if (!newGroup.trim()) return;
     createGroup();
-    setShowCreateModal(false);
-    setNewGroup("");
   };
 
-  const startPrivateChat = (chatUser: any) => {
-    const privateGroupName = `${chatUser.name || chatUser.email}`;
+  const startPrivateChat = async (chatUser: any) => {
+    const privateGroupName = chatUser.email;
+    
+    const { data: existing } = await supabase
+    .from('groups')
+    .select('*')
+    .eq('name', privateGroupName)
+    .single();
+    
+    if (!existing) {
+      await supabase.from('groups').insert({
+        name: privateGroupName,
+        is_group: false,
+        created_by: user?.email,
+      });
+    }
+    
     setSelectedGroup(privateGroupName);
-    setNewGroup(privateGroupName);
-    createGroup();
   };
 
   const getInitials = (email: string) => email?.[0]?.toUpperCase() || "?";
@@ -103,7 +220,7 @@ export default function ChatPage({
   };
 
   const isPrivateChat = (groupName: string) => {
-    return!groups.find(g => g.name === groupName && g.is_group);
+    return!(groups || []).find(g => g.name === groupName && g.is_group);
   };
 
   const canDeleteChat = selectedGroup && (isAdmin || isPrivateChat(selectedGroup));
@@ -115,7 +232,7 @@ export default function ChatPage({
 
   const confirmDeleteChat = () => {
     if (showDeleteConfirm) {
-      deleteChat?.(showDeleteConfirm);
+      deleteChat(showDeleteConfirm);
       setSelectedGroup("");
       setShowDeleteConfirm(null);
     }
@@ -130,14 +247,14 @@ export default function ChatPage({
     }
   };
 
-  const filteredGroups = groups.filter((g) =>
+  const filteredGroups = (groups || []).filter((g) =>
     g.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredUsers = chatUsers
-.filter((u) => u.email!== currentUser?.email)
-.filter((u) =>
-      `${u.name} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = (chatUsers || [])
+ .filter((u) => u.email!== currentUser?.email)
+ .filter((u) =>
+      `${u.name || ''} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
   return (
@@ -235,7 +352,6 @@ export default function ChatPage({
       <div className="flex-1 flex flex-col bg-[#0B1E3F]">
         {selectedGroup? (
           <>
-            {/* Chat Header - FIXED */}
             <div className="bg-[#0F2A52] border-b border-white/5 px-3 py-2.5 flex items-center gap-2">
               <button
                 onClick={() => setShowSidebar(true)}
@@ -250,7 +366,7 @@ export default function ChatPage({
                 <h3 className="font-semibold text-white truncate text-sm">
                   {selectedGroup}
                 </h3>
-                <p className="text-xs text-white/40">{messages.length} Nachrichten</p>
+                <p className="text-xs text-white/40">{(messages || []).length} Nachrichten</p>
               </div>
               
               {canDeleteChat && (
@@ -265,7 +381,7 @@ export default function ChatPage({
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
-              {messages.length === 0? (
+              {(messages || []).length === 0? (
                 <div className="h-full flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-5xl mb-2 opacity-10">💬</div>
@@ -273,16 +389,16 @@ export default function ChatPage({
                   </div>
                 </div>
               ) : (
-                messages.map((msg, idx) => {
+                (messages || []).map((msg, idx) => {
                   const isOwn = msg.user_email === currentUser?.email;
-                  const showAvatar = idx === 0 || messages[idx - 1].user_email!== msg.user_email;
+                  const showAvatar = idx === 0 || (messages || [])[idx - 1].user_email!== msg.user_email;
                   const canDelete = isOwn || isAdmin;
                   
                   return (
                     <div
                       key={msg.id}
                       className={`flex gap-2 group ${isOwn? "justify-end" : ""} ${
-          !showAvatar? "ml-10" : ""
+                      !showAvatar? "ml-10" : ""
                       }`}
                       onMouseEnter={() => setHoveredMessage(msg.id)}
                       onMouseLeave={() => setHoveredMessage(null)}
@@ -301,7 +417,7 @@ export default function ChatPage({
                         <div className="relative flex items-start gap-2">
                           {canDelete && hoveredMessage === msg.id && (
                             <button
-                              onClick={() => deleteMessage?.(msg.id)}
+                              onClick={() => deleteMessage(msg.id)}
                               className="bg-red-500/20 hover:bg-red-500/40 text-red-300 px-2 py-1 rounded-lg text-xs transition shrink-0"
                             >
                               Löschen
@@ -310,8 +426,8 @@ export default function ChatPage({
                           <div
                             className={`px-3.5 py-2 rounded-2xl ${
                               isOwn
-                ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
-                              : "bg-[#1A3A5C] text-white rounded-bl-md"
+                              ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
+                                : "bg-[#1A3A5C] text-white rounded-bl-md"
                             }`}
                           >
                             <p className="text-sm leading-relaxed break-words">
