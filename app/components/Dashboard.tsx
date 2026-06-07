@@ -13,6 +13,7 @@ export default function Dashboard({
 }: Props) {
   const cards = [
     { title: "Profil", description: "Daten bearbeiten", icon: "👤", page: "profile" },
+    { title: "Buchungen", description: "Stunden buchen", icon: "📰", page: "booking" }
     { title: "Kurse", description: "Musikkurse", icon: "🎵", page: "courses" },
     { title: "Stundenplan", description: "Termine", icon: "📅", page: "schedule" },
     { title: "Instrumente", description: "Infos & Räume", icon: "🎹", page: "instruments" },

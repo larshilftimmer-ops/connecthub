@@ -14,6 +14,7 @@ import SchedulePage from "./components/SchedulePage";
 import InstrumentsPage from "./components/InstrumentsPage";
 import AdminPanel from "./components/AdminPanel";
 import FilesPage from "./components/FilesPage";
+import BookingPage from "./components/BookingPage";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -646,6 +647,8 @@ export default function Home() {
         {activePage === "links" && <LinksPage />}
 
         {activePage === "files" && <FilesPage userRole={profile?.role || "student"} />}
+
+        {activePage === "booking" && <BookingPage user={user} />}
       </div>
 
       <BottomNav setActivePage={setActivePage} />
