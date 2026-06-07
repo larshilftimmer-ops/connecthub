@@ -1,43 +1,130 @@
 "use client";
 
-type Props = {
-  monthName: string;
-  calendarDays: Array<number | null>;
-  changeMonth: (amount: number) => void;
-  setCalendarMonth: (date: Date) => void;
-  getDateString: (day: number) => string;
-  getEventsForDay: (day: number) => any[];
-  setEventDate: (value: string) => void;
-  eventTitle: string;
-  setEventTitle: (value: string) => void;
-  eventDate: string;
-  eventTime: string;
-  setEventTime: (value: string) => void;
-  eventDescription: string;
-  setEventDescription: (value: string) => void;
-  createEvent: () => void;
-  events: any[];
+import { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { useProfile } from "../hooks/useProfile";
+import { supabase } from "../supabase";
+
+type Event = {
+  id: string;
+  title: string;
+  event_date: string;
+  event_time: string;
+  description: string;
+  user_email: string;
+  created_at: string;
 };
 
-export default function CalendarPage({
-  monthName,
-  calendarDays,
-  changeMonth,
-  setCalendarMonth,
-  getDateString,
-  getEventsForDay,
-  setEventDate,
-  eventTitle,
-  setEventTitle,
-  eventDate,
-  eventTime,
-  setEventTime,
-  eventDescription,
-  setEventDescription,
-  createEvent,
-  events,
-}: Props) {
+export default function CalendarPage() {
+  const { user } = useAuth();
+  const { profile } = useProfile(user?.email);
+  
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [events, setEvents] = useState<Event[]>([]);
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
+
+  const isAdmin = 
+    profile?.role === "admin" ||
+    ["l.c.petersen2@gmail.com", "kartmann@musikschulebadsoden.de", "info@musikschulebadsoden.de", "kopp_m@musikschulebadsoden.de"].includes(user?.email || "");
+
   const today = new Date().toISOString().split('T')[0];
+
+  // Supabase: Events laden
+  useEffect(() => {
+    if (!user?.email) return;
+    
+    const fetchEvents = async () => {
+      const { data, error } = await supabase
+       .from('events')
+       .select('*')
+       .order('event_date', { ascending: true })
+       .order('event_time', { ascending: true });
+      
+      if (!error) setEvents(data || []);
+    };
+    
+    fetchEvents();
+
+    // Realtime Subscription
+    const channel = supabase
+     .channel('events')
+     .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, fetchEvents)
+     .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, );
+
+  // Kalender-Berechnung
+  const getMonthName = (date: Date) => {
+    return date.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+  };
+
+  const getCalendarDays = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDay = firstDay.getDay() === 0? 6 : firstDay.getDay() - 1;
+    
+    const days: Array<number | null> = [];
+    
+    // Leere Tage am Anfang
+    for (let i = 0; i < startDay; i++) {
+      days.push(null);
+    }
+    
+    // Tage des Monats
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(i);
+    }
+    
+    return days;
+  };
+
+  const changeMonth = (amount: number) => {
+    const newDate = new Date(calendarMonth);
+    newDate.setMonth(newDate.getMonth() + amount);
+    setCalendarMonth(newDate);
+  };
+
+  const getDateString = (day: number) => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth() + 1;
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  };
+
+  const getEventsForDay = (day: number) => {
+    const dateString = getDateString(day);
+    return events.filter(e => e.event_date === dateString);
+  };
+
+  const createEvent = async () => {
+    if (!eventTitle.trim() ||!eventDate ||!eventTime ||!user?.email) return;
+    
+    const { error } = await supabase.from('events').insert({
+      title: eventTitle.trim(),
+      event_date: eventDate,
+      event_time: eventTime,
+      description: eventDescription.trim(),
+      user_email: user.email,
+    });
+    
+    if (!error) {
+      setEventTitle("");
+      setEventDate("");
+      setEventTime("");
+      setEventDescription("");
+    }
+  };
+
+  const monthName = getMonthName(calendarMonth);
+  const calendarDays = getCalendarDays(calendarMonth);
 
   return (
     <div className="w-full h-[calc(100vh-7rem)] bg-gradient-to-br from-[#0B1E3F] via-[#0D2247] to-[#0B1E3F] rounded-2xl overflow-hidden flex flex-col relative">
@@ -117,9 +204,9 @@ export default function CalendarPage({
                   onClick={() => setEventDate(dateString)}
                   className={`min-h-14 sm:min-h-20 rounded-lg p-1.5 text-left border transition-all duration-200 overflow-hidden active:scale-95 relative group ${
                     isSelected
-                     ? "bg-[#00D9FF] text-[#0B1E3F] border-[#00D9FF] shadow-[0_0_20px_rgba(0,217,255,0.4)] scale-105"
+                   ? "bg-[#00D9FF] text-[#0B1E3F] border-[#00D9FF] shadow-[0_0_20px_rgba(0,217,255,0.4)] scale-105"
                       : isToday
-                     ? "bg-white/10 hover:bg-white/15 border-[#00D9FF]/50 shadow-[0_0_15px_rgba(0,217,255,0.2)]"
+                   ? "bg-white/10 hover:bg-white/15 border-[#00D9FF]/50 shadow-[0_0_15px_rgba(0,217,255,0.2)]"
                       : "bg-white/5 hover:bg-white/10 border-white/5 hover:border-[#00D9FF]/30 hover:shadow-[0_0_15px_rgba(0,217,255,0.1)]"
                   }`}
                 >
@@ -135,7 +222,7 @@ export default function CalendarPage({
                         key={event.id}
                         className={`text-[10px] px-1.5 py-0.5 rounded truncate font-medium ${
                           isSelected
-                           ? "bg-[#0B1E3F]/20 text-[#0B1E3F]"
+                         ? "bg-[#0B1E3F]/20 text-[#0B1E3F]"
                             : "bg-[#00D9FF]/20 text-[#00D9FF]"
                         }`}
                       >
@@ -209,7 +296,8 @@ export default function CalendarPage({
 
             <button
               onClick={createEvent}
-              className="w-full bg-[#00D9FF] hover:bg-[#00D9FF]/90 text-[#0B1E3F] font-bold p-3 rounded-xl active:scale-95 transition-all shadow-[0_0_30px_rgba(0,217,255,0.3)] hover:shadow-[0_0_40px_rgba(0,217,255,0.5)]"
+              disabled={!eventTitle.trim() ||!eventDate ||!eventTime}
+              className="w-full bg-[#00D9FF] hover:bg-[#00D9FF]/90 disabled:opacity-30 disabled:cursor-not-allowed text-[#0B1E3F] font-bold p-3 rounded-xl active:scale-95 transition-all shadow-[0_0_30px_rgba(0,217,255,0.3)] hover:shadow-[0_0_40px_rgba(0,217,255,0.5)]"
             >
               Termin hinzufügen
             </button>
