@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "./supabase";
-import { PageType } from "../types";
+import { PageType } from "./types";
 import Dashboard from "./components/Dashboard";
 import BottomNav from "./components/BottomNav";
 import ChatPage from "./components/ChatPage";
