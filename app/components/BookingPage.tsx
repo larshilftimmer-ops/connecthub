@@ -1,10 +1,10 @@
 "use client";
 
 type Props = {
-  user: any;
+  user?: any;
 };
 
-export default function BookingPage({ user }: Props) {
+export default function BookingPage({ user = null }: Props) {
   return (
     <div className="w-full h-[calc(100vh-7rem)] bg-gradient-to-br from-[#0B1E3F] via-[#0D2247] to-[#0B1E3F] rounded-2xl overflow-hidden flex flex-col relative">
       
