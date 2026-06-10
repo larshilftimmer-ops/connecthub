@@ -1,6 +1,6 @@
 "use client";
 
-import { PageType } from "../types";
+import { PageType } from "../../types";
 
 type Props = {
   activePage: PageType;
