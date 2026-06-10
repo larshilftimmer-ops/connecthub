@@ -173,6 +173,33 @@ export default function CalendarPage() {
     return event.user_email === user?.email || isAdmin;
   };
 
+  // DSGVO Export
+  const exportMyData = async () => {
+    if (!user?.email) return;
+
+    const { data, error } = await supabase
+     .from('events')
+     .select('*')
+     .eq('user_email', user.email);
+
+    if (error) {
+      alert("Fehler beim Export: " + error.message);
+      return;
+    }
+
+    const jsonData = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `meine-termine-${user.email}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const monthName = getMonthName(calendarMonth);
   const calendarDays = getCalendarDays(calendarMonth);
 
@@ -190,26 +217,35 @@ export default function CalendarPage() {
             <p className="text-sm text-white/40 capitalize font-medium">{monthName}</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 w-full sm:w-auto">
-            <button
-              onClick={() => changeMonth(-1)}
-              className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00D9FF]/30 px-4 py-2.5 rounded-xl font-semibold text-white active:scale-95 transition-all hover:shadow-[0_0_20px_rgba(0,217,255,0.2)]"
-            >
-              ←
-            </button>
+          <div className="flex flex-col gap-2 w-full sm:w-auto">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => changeMonth(-1)}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00D9FF]/30 px-4 py-2.5 rounded-xl font-semibold text-white active:scale-95 transition-all hover:shadow-[0_0_20px_rgba(0,217,255,0.2)]"
+              >
+                ←
+              </button>
+
+              <button
+                onClick={() => setCalendarMonth(new Date())}
+                className="bg-[#00D9FF] hover:bg-[#00D9FF]/90 text-[#0B1E3F] px-4 py-2.5 rounded-xl font-bold active:scale-95 transition-all shadow-[0_0_30px_rgba(0,217,255,0.3)] hover:shadow-[0_0_40px_rgba(0,217,255,0.5)]"
+              >
+                Heute
+              </button>
+
+              <button
+                onClick={() => changeMonth(1)}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00D9FF]/30 px-4 py-2.5 rounded-xl font-semibold text-white active:scale-95 transition-all hover:shadow-[0_0_20px_rgba(0,217,255,0.2)]"
+              >
+                →
+              </button>
+            </div>
 
             <button
-              onClick={() => setCalendarMonth(new Date())}
-              className="bg-[#00D9FF] hover:bg-[#00D9FF]/90 text-[#0B1E3F] px-4 py-2.5 rounded-xl font-bold active:scale-95 transition-all shadow-[0_0_30px_rgba(0,217,255,0.3)] hover:shadow-[0_0_40px_rgba(0,217,255,0.5)]"
+              onClick={exportMyData}
+              className="w-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00D9FF]/30 px-4 py-2 rounded-xl font-semibold text-white/70 hover:text-white active:scale-95 transition-all text-sm"
             >
-              Heute
-            </button>
-
-            <button
-              onClick={() => changeMonth(1)}
-              className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00D9FF]/30 px-4 py-2.5 rounded-xl font-semibold text-white active:scale-95 transition-all hover:shadow-[0_0_20px_rgba(0,217,255,0.2)]"
-            >
-              →
+              📥 Meine Daten exportieren
             </button>
           </div>
         </div>
