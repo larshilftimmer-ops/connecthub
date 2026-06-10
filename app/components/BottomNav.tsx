@@ -5,12 +5,11 @@ import { useState } from "react";
 type PageType = "dashboard" | "chat" | "calendar" | "news" | "links" | "files" | "booking";
 
 type Props = {
+  activePage: PageType;
   setActivePage: (page: PageType) => void;
 };
 
-export default function BottomNav({ setActivePage }: Props) {
-  const [activeTab, setActiveTab] = useState("dashboard");
-
+export default function BottomNav({ activePage, setActivePage }: Props) {
   const navItems = [
     { id: "dashboard" as PageType, icon: "🏠", label: "Home" },
     { id: "chat" as PageType, icon: "💬", label: "Chat" },
@@ -20,7 +19,6 @@ export default function BottomNav({ setActivePage }: Props) {
   ];
 
   const handleClick = (page: PageType) => {
-    setActiveTab(page);
     setActivePage(page);
   };
 
@@ -33,7 +31,7 @@ export default function BottomNav({ setActivePage }: Props) {
       <div className="relative bg-[#0B1E3F]/80 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl px-2 py-2.5 flex justify-around items-center">
         
         {navItems.map((item) => {
-          const isActive = activeTab === item.id;
+          const isActive = activePage === item.id;
           
           return (
             <button
