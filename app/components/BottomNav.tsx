@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-
-type PageType = "dashboard" | "chat" | "calendar" | "news" | "links" | "files" | "booking" | "admin" | "student" | "teacher" | "parent" | "guest";
+type PageType = "dashboard" | "chat" | "calendar" | "news" | "links" | "files" | "booking" | "admin" | "student" | "teacher" | "parent" | "guest" | "profile";
 
 type Props = {
   activePage: PageType;
@@ -57,7 +55,7 @@ export default function BottomNav({ activePage, setActivePage }: Props) {
               
               {/* Label */}
               <span
-                className={`relative text- font-semibold transition-all duration-300 ${
+                className={`relative text-[10px] font-semibold transition-all duration-300 ${
                   isActive
                   ? "text-[#00D9FF]"
                     : "text-white/50 group-hover:text-white/80"
