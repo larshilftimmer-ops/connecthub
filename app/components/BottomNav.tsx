@@ -22,49 +22,56 @@ export default function BottomNav({ activePage, setActivePage }: Props) {
 
   return (
     <div className="fixed bottom-3 left-3 right-3 z-50">
-      <div className="absolute inset-0 bg-gradient-to-r from-[#00D9FF]/20 via-[#0099CC]/20 to-[#00D9FF]/20 rounded-3xl blur-xl"></div>
+      {/* Glow Effekt */}
+      <div className="absolute inset-0 bg-[#00D9FF]/10 rounded-2xl blur-2xl"></div>
       
-      <div className="relative bg-[#0B1E3F]/80 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl px-2 py-2.5 flex justify-around items-center">
-        
-        {navItems.map((item) => {
-          const isActive = activePage === item.id;
-          
-          return (
-            <button
-              key={item.id}
-              onClick={() => handleClick(item.id)}
-              className="relative flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl transition-all duration-300 active:scale-90 group"
-            >
-              {isActive && (
-                <div className="absolute inset-0 bg-gradient-to-br from-[#00D9FF]/20 to-[#0099CC]/10 rounded-2xl blur-sm"></div>
-              )}
-              
-              <div
-                className={`relative text-xl transition-all duration-300 ${
-                  isActive
-                  ? "scale-110 drop-shadow-[0_0_8px_rgba(0,217,255,0.6)]"
-                    : "opacity-60 group-hover:opacity-100 group-hover:scale-105"
-                }`}
+      {/* Main Bar */}
+      <div className="relative bg-[#0F2A52]/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] px-1 py-2">
+        <div className="grid grid-cols-5 gap-1">
+          {navItems.map((item) => {
+            const isActive = activePage === item.id;
+            
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleClick(item.id)}
+                className="relative flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all duration-200 active:scale-95 group"
               >
-                {item.icon}
-              </div>
-              
-              <span
-                className={`relative text- font-semibold transition-all duration-300 ${
-                  isActive
-                  ? "text-[#00D9FF]"
-                    : "text-white/50 group-hover:text-white/80"
-                }`}
-              >
-                {item.label}
-              </span>
-              
-              {isActive && (
-                <div className="absolute -bottom-0.5 w-1 h-1 bg-[#00D9FF] rounded-full shadow-[0_0_6px_rgba(0,217,255,0.8)]"></div>
-              )}
-            </button>
-          );
-        })}
+                {/* Active Background */}
+                {isActive && (
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#00D9FF]/20 to-transparent rounded-xl"></div>
+                )}
+                
+                {/* Icon */}
+                <div
+                  className={`relative text-2xl leading-none transition-all duration-200 ${
+                    isActive
+                      ? "scale-110 drop-shadow-[0_0_12px_rgba(0,217,255,0.8)]"
+                      : "opacity-50 group-hover:opacity-100 group-hover:scale-105"
+                  }`}
+                >
+                  {item.icon}
+                </div>
+                
+                {/* Label */}
+                <span
+                  className={`relative text-[10px] font-bold leading-none transition-all duration-200 ${
+                    isActive
+                      ? "text-[#00D9FF]"
+                      : "text-white/40 group-hover:text-white/70"
+                  }`}
+                >
+                  {item.label}
+                </span>
+                
+                {/* Active Dot */}
+                {isActive && (
+                  <div className="absolute -bottom-0.5 w-1 h-1 bg-[#00D9FF] rounded-full shadow-[0_0_8px_rgba(0,217,255,1)]"></div>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
