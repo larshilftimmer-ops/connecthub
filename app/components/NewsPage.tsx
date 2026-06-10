@@ -1,10 +1,10 @@
 "use client";
 
 type Props = {
-  news: any[];
+  news?: any[];
 };
 
-export default function NewsPage({ news }: Props) {
+export default function NewsPage({ news = [] }: Props) {
   function formatDate(dateString: string) {
     if (!dateString) return "";
     const date = new Date(dateString);
