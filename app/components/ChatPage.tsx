@@ -1,125 +1,69 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
-import { useProfile } from "../hooks/useProfile";
-import { supabase } from "../supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 type Message = {
   id: string;
   user_email: string;
   content: string;
   created_at: string;
-  group_name: string;
   read_by?: string[];
 };
 
-type Group = {
-  id: string;
-  name: string;
-  is_group: boolean;
-  created_by: string;
-  created_at: string;
+type Props = {
+  user: any;
+  groups: any[];
+  selectedGroup: string;
+  setSelectedGroup: (group: string) => void;
+  isAdmin: boolean;
+  deleteGroup: (id: string) => void;
+  newGroup: string;
+  setNewGroup: (value: string) => void;
+  createGroup: () => void;
+  message: string;
+  setMessage: (value: string) => void;
+  sendMessage: () => void;
+  messages: Message[];
+  chatUsers: any[];
+  currentUser: any;
+  deleteMessage?: (id: string) => void;
+  deleteChat?: (groupName: string) => void;
+  refreshGroups?: () => void;
 };
 
-export default function ChatPage() {
-  const { user } = useAuth();
-  const { profile } = useProfile(user?.email);
-  
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState("");
-  const [newGroup, setNewGroup] = useState("");
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [chatUsers, setChatUsers] = useState<any[]>([]);
-  
+export default function ChatPage({
+  user,
+  groups,
+  selectedGroup,
+  setSelectedGroup,
+  isAdmin,
+  deleteGroup,
+  newGroup,
+  setNewGroup,
+  createGroup: _parentCreateGroup,
+  message,
+  setMessage,
+  sendMessage,
+  messages,
+  chatUsers,
+  currentUser,
+  deleteMessage,
+  deleteChat,
+  refreshGroups,
+}: Props) {
   const [showSidebar, setShowSidebar] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const currentUser = user;
-  const isAdmin = 
-    profile?.role === "admin" ||
-    ["l.c.petersen2@gmail.com", "kartmann@musikschulebadsoden.de", "info@musikschulebadsoden.de", "kopp_m@musikschulebadsoden.de"].includes(user?.email || "");
-
-  // Supabase: Groups laden
-  useEffect(() => {
-    if (!user) return;
-    
-    const fetchGroups = async () => {
-      const { data, error } = await supabase
-      .from('groups')
-      .select('*')
-      .order('created_at', { ascending: false });
-      
-      if (!error) setGroups(data || []);
-    };
-    
-    fetchGroups();
-
-    // Realtime für Groups
-    const channel = supabase
-    .channel('groups')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, fetchGroups)
-    .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, );
-
-  // Supabase: Users laden
-  useEffect(() => {
-    if (!user) return;
-    
-    const fetchUsers = async () => {
-      const { data, error } = await supabase
-      .from('profiles')
-      .select('id, email, name, role');
-      
-      if (!error) setChatUsers(data || []);
-    };
-    
-    fetchUsers();
-  }, );
-
-  // Supabase: Messages laden + Realtime
-  useEffect(() => {
-    if (!selectedGroup ||!user) return;
-    
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('group_name', selectedGroup)
-      .order('created_at', { ascending: true });
-      
-      if (!error) setMessages(data || []);
-    };
-    
-    fetchMessages();
-
-    // Realtime Subscription
-    const channel = supabase
-    .channel(`messages:${selectedGroup}`)
-    .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'messages', 
-          filter: `group_name=eq.${selectedGroup}` 
-        },
-        () => fetchMessages()
-      )
-    .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [selectedGroup, user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -130,47 +74,6 @@ export default function ChatPage() {
       setShowSidebar(false);
     }
   }, [selectedGroup]);
-
-  const sendMessage = async () => {
-    if (!message.trim() ||!selectedGroup ||!user?.email) return;
-    
-    const { error } = await supabase.from('messages').insert({
-      content: message.trim(),
-      user_email: user.email,
-      group_name: selectedGroup,
-    });
-    
-    if (!error) setMessage("");
-  };
-
-  const createGroup = async () => {
-    if (!newGroup.trim() ||!user?.email) return;
-    
-    const { error } = await supabase.from('groups').insert({
-      name: newGroup.trim(),
-      is_group: true,
-      created_by: user.email,
-    });
-    
-    if (!error) {
-      setNewGroup("");
-      setShowCreateModal(false);
-    }
-  };
-
-  const deleteGroup = async (id: string) => {
-    await supabase.from('messages').delete().eq('group_name', groups.find(g => g.id === id)?.name);
-    await supabase.from('groups').delete().eq('id', id);
-  };
-
-  const deleteMessage = async (id: string) => {
-    await supabase.from('messages').delete().eq('id', id);
-  };
-
-  const deleteChat = async (groupName: string) => {
-    await supabase.from('messages').delete().eq('group_name', groupName);
-    await supabase.from('groups').delete().eq('name', groupName);
-  };
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -184,43 +87,106 @@ export default function ChatPage() {
     }
   };
 
-  const handleCreateGroup = () => {
-    if (!newGroup.trim()) return;
-    createGroup();
+  // DSGVO-KONFORME GRUPPEN-ERSTELLUNG
+  const handleCreateGroup = async () => {
+    if (!newGroup.trim() || isCreating) return;
+    setIsCreating(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user?.email) {
+        alert("Bitte melden Sie sich an");
+        setIsCreating(false);
+        return;
+      }
+
+      // 1. Gruppe anlegen - nur notwendige Daten
+      const { data: conversation, error: convError } = await supabase
+       .from("conversations")
+       .insert({
+          name: newGroup.trim(),
+          is_group: true,
+          created_by: user.email // DSGVO: Zweck = Chat-Funktion
+        })
+       .select()
+       .single();
+
+      if (convError) throw convError;
+
+      // 2. Ersteller als Member hinzufügen - DSGVO: Einwilligung durch Aktion
+      const { error: memberError } = await supabase
+       .from("conversation_members")
+       .insert({
+          conversation_id: conversation.id,
+          user_email: user.email
+        });
+
+      if (memberError) throw memberError;
+
+      // 3. UI Update
+      setShowCreateModal(false);
+      setNewGroup("");
+      setSelectedGroup(newGroup.trim());
+      refreshGroups?.();
+
+    } catch (err: any) {
+      console.error("Gruppen-Erstellung fehlgeschlagen:", err);
+      alert(`Fehler: ${err.message || "Unbekannter Fehler"}`);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const startPrivateChat = async (chatUser: any) => {
-    const privateGroupName = chatUser.email;
-    
-    const { data: existing } = await supabase
-    .from('groups')
-    .select('*')
-    .eq('name', privateGroupName)
-    .single();
-    
-    if (!existing) {
-      await supabase.from('groups').insert({
+    const privateGroupName = chatUser.name || chatUser.email;
+
+    const existing = groups.find(g => g.name === privateGroupName);
+    if (existing) {
+      setSelectedGroup(privateGroupName);
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) return;
+
+    const { data: conv, error } = await supabase
+     .from("conversations")
+     .insert({
         name: privateGroupName,
         is_group: false,
-        created_by: user?.email,
-      });
+        created_by: user.email
+      })
+     .select()
+     .single();
+
+    if (error ||!conv) {
+      alert("Chat konnte nicht erstellt werden");
+      return;
     }
-    
+
+    // Beide User als Members - DSGVO: beidseitige Einwilligung nötig
+    await supabase.from("conversation_members").insert([
+      { conversation_id: conv.id, user_email: user.email },
+      { conversation_id: conv.id, user_email: chatUser.email }
+    ]);
+
     setSelectedGroup(privateGroupName);
+    refreshGroups?.();
   };
 
   const getInitials = (email: string) => email?.[0]?.toUpperCase() || "?";
-  
+
   const formatTime = (timestamp: string) => {
     if (!timestamp) return "";
-    return new Date(timestamp).toLocaleTimeString("de-DE", { 
-      hour: "2-digit", 
-      minute: "2-digit" 
+    return new Date(timestamp).toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit"
     });
   };
 
   const isPrivateChat = (groupName: string) => {
-    return!(groups || []).find(g => g.name === groupName && g.is_group);
+    return!groups.find(g => g.name === groupName && g.is_group);
   };
 
   const canDeleteChat = selectedGroup && (isAdmin || isPrivateChat(selectedGroup));
@@ -232,7 +198,7 @@ export default function ChatPage() {
 
   const confirmDeleteChat = () => {
     if (showDeleteConfirm) {
-      deleteChat(showDeleteConfirm);
+      deleteChat?.(showDeleteConfirm);
       setSelectedGroup("");
       setShowDeleteConfirm(null);
     }
@@ -247,19 +213,19 @@ export default function ChatPage() {
     }
   };
 
-  const filteredGroups = (groups || []).filter((g) =>
+  const filteredGroups = groups.filter((g) =>
     g.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredUsers = (chatUsers || [])
- .filter((u) => u.email!== currentUser?.email)
- .filter((u) =>
-      `${u.name || ''} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = chatUsers
+   .filter((u) => u.email!== currentUser?.email)
+   .filter((u) =>
+      `${u.name} ${u.email}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
   return (
     <div className="w-full h-[calc(100vh-7rem)] bg-[#0B1E3F] rounded-2xl overflow-hidden flex">
-      
+
       {/* Sidebar */}
       <div
         className={`${
@@ -366,9 +332,9 @@ export default function ChatPage() {
                 <h3 className="font-semibold text-white truncate text-sm">
                   {selectedGroup}
                 </h3>
-                <p className="text-xs text-white/40">{(messages || []).length} Nachrichten</p>
+                <p className="text-xs text-white/40">{messages.length} Nachrichten</p>
               </div>
-              
+
               {canDeleteChat && (
                 <button
                   onClick={handleDeleteChat}
@@ -381,7 +347,7 @@ export default function ChatPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
-              {(messages || []).length === 0? (
+              {messages.length === 0? (
                 <div className="h-full flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-5xl mb-2 opacity-10">💬</div>
@@ -389,16 +355,16 @@ export default function ChatPage() {
                   </div>
                 </div>
               ) : (
-                (messages || []).map((msg, idx) => {
+                messages.map((msg, idx) => {
                   const isOwn = msg.user_email === currentUser?.email;
-                  const showAvatar = idx === 0 || (messages || [])[idx - 1].user_email!== msg.user_email;
+                  const showAvatar = idx === 0 || messages[idx - 1].user_email!== msg.user_email;
                   const canDelete = isOwn || isAdmin;
-                  
+
                   return (
                     <div
                       key={msg.id}
                       className={`flex gap-2 group ${isOwn? "justify-end" : ""} ${
-                      !showAvatar? "ml-10" : ""
+                       !showAvatar? "ml-10" : ""
                       }`}
                       onMouseEnter={() => setHoveredMessage(msg.id)}
                       onMouseLeave={() => setHoveredMessage(null)}
@@ -417,7 +383,7 @@ export default function ChatPage() {
                         <div className="relative flex items-start gap-2">
                           {canDelete && hoveredMessage === msg.id && (
                             <button
-                              onClick={() => deleteMessage(msg.id)}
+                              onClick={() => deleteMessage?.(msg.id)}
                               className="bg-red-500/20 hover:bg-red-500/40 text-red-300 px-2 py-1 rounded-lg text-xs transition shrink-0"
                             >
                               Löschen
@@ -426,7 +392,7 @@ export default function ChatPage() {
                           <div
                             className={`px-3.5 py-2 rounded-2xl ${
                               isOwn
-                              ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
+                               ? "bg-[#00D9FF] text-[#0B1E3F] rounded-br-md"
                                 : "bg-[#1A3A5C] text-white rounded-bl-md"
                             }`}
                           >
@@ -480,11 +446,11 @@ export default function ChatPage() {
 
       {/* Modal für Gruppe erstellen */}
       {showCreateModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setShowCreateModal(false)}
         >
-          <div 
+          <div
             className="bg-[#0F2A52] border border-white/10 rounded-2xl p-6 w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
@@ -506,23 +472,23 @@ export default function ChatPage() {
               </button>
               <button
                 onClick={handleCreateGroup}
-                disabled={!newGroup.trim()}
+                disabled={!newGroup.trim() || isCreating}
                 className="flex-1 bg-[#00D9FF] disabled:opacity-30 text-[#0B1E3F] py-2.5 rounded-xl font-semibold transition active:scale-95"
               >
-                Erstellen
+                {isCreating? "..." : "Erstellen"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal für Chat löschen Bestätigung */}
+      {/* Modal für Chat löschen */}
       {showDeleteConfirm && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setShowDeleteConfirm(null)}
         >
-          <div 
+          <div
             className="bg-[#0F2A52] border border-red-500/20 rounded-2xl p-6 w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
