@@ -12,4 +12,6 @@ export type PageType =
   | "parent" 
   | "guest" 
   | "profile"
-  | "courses";
+  | "courses"
+  | "schedule"
+  | "instruments";
