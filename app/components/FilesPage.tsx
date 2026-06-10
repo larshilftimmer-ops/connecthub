@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
 
 type Props = {
-  userRole: string;
+  userRole?: string;
 };
 
-export default function FilesPage({ userRole }: Props) {
+export default function FilesPage({ userRole = "guest" }: Props) {
   const [files, setFiles] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -26,13 +26,13 @@ export default function FilesPage({ userRole }: Props) {
 
     for (const folder of folders) {
       const { data } = await supabase.storage
-       .from("files")
-       .list(`uploads/${folder}`);
+      .from("files")
+      .list(`uploads/${folder}`);
 
       if (data) {
         data.forEach((file) => {
           allFiles.push({
-           ...file,
+          ...file,
             folder,
           });
         });
@@ -44,8 +44,8 @@ export default function FilesPage({ userRole }: Props) {
 
   function downloadFile(fileName: string, folder: string) {
     const { data } = supabase.storage
-     .from("files")
-     .getPublicUrl(`uploads/${folder}/${fileName}`);
+    .from("files")
+    .getPublicUrl(`uploads/${folder}/${fileName}`);
 
     window.open(data.publicUrl, "_blank");
   }
@@ -76,11 +76,11 @@ export default function FilesPage({ userRole }: Props) {
 
   return (
     <div className="w-full h-[calc(100vh-7rem)] bg-gradient-to-br from-[#0B1E3F] via-[#0D2247] to-[#0B1E3F] rounded-2xl overflow-hidden flex flex-col relative">
-      
+
       {/* Animated Background Glow */}
       <div className="absolute top-0 left-1/3 w-96 h-96 bg-[#00D9FF]/5 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-[#00D9FF]/5 rounded-full blur-3xl animate-pulse delay-1000" />
-      
+
       {/* Header */}
       <div className="bg-[#0F2A52]/80 backdrop-blur-xl border-b border-white/10 px-4 py-4 relative z-10">
         <h2 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
@@ -126,7 +126,7 @@ export default function FilesPage({ userRole }: Props) {
                 <div className="w-12 h-12 rounded-xl bg-[#00D9FF]/10 flex items-center justify-center text-2xl shrink-0 group-hover:bg-[#00D9FF]/20 group-hover:shadow-[0_0_20px_rgba(0,217,255,0.3)] transition-all">
                   {getFileIcon(file.name)}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <h3 className="text-white font-semibold text-sm mb-1 truncate">
                     {file.name}
