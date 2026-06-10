@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "./supabase";
+import { PageType } from "../types";
 import Dashboard from "./components/Dashboard";
 import BottomNav from "./components/BottomNav";
 import ChatPage from "./components/ChatPage";
@@ -18,21 +19,6 @@ import BookingPage from "./components/BookingPage";
 import LoginPage from "./components/LoginPage";
 import { useAuth } from "./hooks/useAuth";
 import { useProfile } from "./hooks/useProfile";
-
-// Types
-export type PageType = 
-  | "dashboard" 
-  | "chat" 
-  | "calendar" 
-  | "admin" 
-  | "profile" 
-  | "courses" 
-  | "schedule" 
-  | "instruments" 
-  | "news" 
-  | "links" 
-  | "files" 
-  | "booking";
 
 export default function Home() {
   const { user, loading: authLoading, login, logout, register } = useAuth();

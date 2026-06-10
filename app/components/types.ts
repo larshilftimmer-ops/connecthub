@@ -1,0 +1,15 @@
+export type PageType = 
+  | "dashboard" 
+  | "chat" 
+  | "calendar" 
+  | "news" 
+  | "links" 
+  | "files" 
+  | "booking" 
+  | "admin" 
+  | "student" 
+  | "teacher"  
+  | "parent" 
+  | "guest" 
+  | "profile"
+  | "courses";
