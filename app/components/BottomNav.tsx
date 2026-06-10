@@ -2,22 +2,24 @@
 
 import { useState } from "react";
 
+type PageType = "dashboard" | "chat" | "calendar" | "news" | "links" | "files" | "booking";
+
 type Props = {
-  setActivePage: (page: string) => void;
+  setActivePage: (page: PageType) => void;
 };
 
 export default function BottomNav({ setActivePage }: Props) {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   const navItems = [
-    { id: "dashboard", icon: "🏠", label: "Home" },
-    { id: "chat", icon: "💬", label: "Chat" },
-    { id: "calendar", icon: "📅", label: "Kalender" },
-    { id: "news", icon: "📰", label: "News" },
-    { id: "links", icon: "🔗", label: "Links" },
+    { id: "dashboard" as PageType, icon: "🏠", label: "Home" },
+    { id: "chat" as PageType, icon: "💬", label: "Chat" },
+    { id: "calendar" as PageType, icon: "📅", label: "Kalender" },
+    { id: "news" as PageType, icon: "📰", label: "News" },
+    { id: "links" as PageType, icon: "🔗", label: "Links" },
   ];
 
-  const handleClick = (page: string) => {
+  const handleClick = (page: PageType) => {
     setActiveTab(page);
     setActivePage(page);
   };
@@ -48,7 +50,7 @@ export default function BottomNav({ setActivePage }: Props) {
               <div
                 className={`relative text-xl transition-all duration-300 ${
                   isActive
-                   ? "scale-110 drop-shadow-[0_0_8px_rgba(0,217,255,0.6)]"
+                  ? "scale-110 drop-shadow-[0_0_8px_rgba(0,217,255,0.6)]"
                     : "opacity-60 group-hover:opacity-100 group-hover:scale-105"
                 }`}
               >
@@ -59,7 +61,7 @@ export default function BottomNav({ setActivePage }: Props) {
               <span
                 className={`relative text-[10px] font-semibold transition-all duration-300 ${
                   isActive
-                   ? "text-[#00D9FF]"
+                  ? "text-[#00D9FF]"
                     : "text-white/50 group-hover:text-white/80"
                 }`}
               >
