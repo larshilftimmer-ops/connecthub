@@ -391,7 +391,7 @@ export default function FilesPage({ userRole = "guest" }: Props) {
  </button>
  )}
  </div>
-
+ </div>
  {!file.shared_with_me && (
  <div className="border-t border-white/10 pt-2">
  {sharingFile === file.path? (
@@ -511,8 +511,6 @@ export default function FilesPage({ userRole = "guest" }: Props) {
  >
  Zustimmen & Hochladen
  </button>
- </div>
- </div>
  </div>
  )}
  </div>
