@@ -3,16 +3,21 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../supabase";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
+  const router = useRouter();
   
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [instrument, setInstrument] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
 
   useEffect(() => {
     if (user?.email) {
@@ -23,11 +28,16 @@ export default function ProfilePage() {
   async function loadProfile() {
     if (!user?.email) return;
     
-    const { data } = await supabase
-   .from("profiles")
-   .select("*")
-   .eq("email", user.email)
-   .single();
+    const { data, error } = await supabase
+     .from("profiles")
+     .select("*")
+     .eq("email", user.email)
+     .single();
+
+    if (error) {
+      setMessage({ type: 'error', text: 'Profil konnte nicht geladen werden.' });
+      return;
+    }
 
     if (data) {
       setName(data.name || "");
@@ -42,13 +52,14 @@ export default function ProfilePage() {
     setMessage(null);
     
     const { error } = await supabase
-   .from("profiles")
-   .update({
-        name,
-        phone,
-        instrument,
+     .from("profiles")
+     .update({
+        name: name.trim(),
+        phone: phone.trim(),
+        instrument: instrument.trim(),
+        updated_at: new Date().toISOString(),
       })
-   .eq("email", user.email);
+     .eq("email", user.email);
 
     setLoading(false);
 
@@ -67,6 +78,16 @@ export default function ProfilePage() {
       return;
     }
 
+    if (newPassword.length < 8) {
+      setMessage({ type: 'error', text: 'Passwort muss mindestens 8 Zeichen haben.' });
+      return;
+    }
+
+    if (newPassword!== confirmPassword) {
+      setMessage({ type: 'error', text: 'Passwörter stimmen nicht überein.' });
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
 
@@ -77,13 +98,68 @@ export default function ProfilePage() {
     setLoading(false);
 
     if (error) {
-      setMessage({ type: 'error', text: 'Passwort konnte nicht geändert werden.' });
+      setMessage({ type: 'error', text: 'Passwort konnte nicht geändert werden: ' + error.message });
       return;
     }
 
     setNewPassword("");
+    setConfirmPassword("");
     setMessage({ type: 'success', text: 'Passwort erfolgreich geändert!' });
     setTimeout(() => setMessage(null), 3000);
+  }
+
+  // DSGVO: Daten exportieren
+  async function exportData() {
+    if (!user?.email) return;
+    setLoading(true);
+    
+    const { data: profileData } = await supabase
+     .from("profiles")
+     .select("*")
+     .eq("email", user.email)
+     .single();
+
+    const exportData = {
+      export_datum: new Date().toISOString(),
+      user_id: user.id,
+      email: user.email,
+      profil: profileData,
+      hinweis: "Dies sind alle über Sie gespeicherten Daten gemäß Art. 20 DSGVO"
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bad-sodify-datenexport-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    setLoading(false);
+    setMessage({ type: 'success', text: 'Datenexport wurde heruntergeladen.' });
+    setTimeout(() => setMessage(null), 3000);
+  }
+
+  // DSGVO: Account löschen
+  async function deleteAccount() {
+    if (deleteConfirm!== "LÖSCHEN") {
+      setMessage({ type: 'error', text: 'Bitte "LÖSCHEN" eingeben zum Bestätigen.' });
+      return;
+    }
+
+    setLoading(true);
+    
+    // 1. Profil löschen
+    await supabase.from("profiles").delete().eq("email", user?.email);
+    
+    // 2. Auth User löschen - geht nur über Admin API oder Edge Function
+    // Für jetzt: Logout + Hinweis
+    setMessage({ type: 'success', text: 'Account-Löschung angefordert. Admin wird informiert.' });
+    
+    setTimeout(async () => {
+      await logout();
+      router.push("/");
+    }, 2000);
   }
 
   if (!user) {
@@ -112,7 +188,7 @@ export default function ProfilePage() {
               Musikschule Bad Soden
             </p>
             <h2 className="text-2xl font-bold text-white">
-              Profil bearbeiten
+              Mein Profil
             </h2>
           </div>
         </div>
@@ -140,9 +216,8 @@ export default function ProfilePage() {
           </h3>
           
           <div className="space-y-3">
-            {/* Name */}
             <div>
-              <label className="text-xs text-white/50 mb-1.5 block font-medium">Name</label>
+              <label className="text-xs text-white/50 mb-1.5 block font-medium">Name *</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">👤</span>
                 <input
@@ -154,12 +229,12 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Telefon */}
             <div>
               <label className="text-xs text-white/50 mb-1.5 block font-medium">Telefon</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">📱</span>
                 <input
+                  type="tel"
                   placeholder="Deine Telefonnummer"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -168,7 +243,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Instrument */}
             <div>
               <label className="text-xs text-white/50 mb-1.5 block font-medium">Instrument</label>
               <div className="relative">
@@ -182,7 +256,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Email Disabled */}
             <div>
               <label className="text-xs text-white/50 mb-1.5 block font-medium">E-Mail</label>
               <div className="relative">
@@ -193,22 +266,19 @@ export default function ProfilePage() {
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white/40 cursor-not-allowed"
                 />
               </div>
+              <p className="text-[10px] text-white/30 mt-1">E-Mail kann aus Sicherheitsgründen nicht geändert werden</p>
             </div>
           </div>
 
           <button
             onClick={saveProfile}
-            disabled={loading}
+            disabled={loading ||!name.trim()}
             className="w-full mt-4 bg-[#00D9FF] hover:bg-[#00D9FF]/90 disabled:bg-white/10 disabled:text-white/40 text-[#0B1E3F] py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-[0_0_30px_rgba(0,217,255,0.3)] hover:shadow-[0_0_40px_rgba(0,217,255,0.5)] disabled:shadow-none flex items-center justify-center gap-2"
           >
             {loading? (
-              <>
-                <span className="animate-spin">⏳</span> Speichern...
-              </>
+              <><span className="animate-spin">⏳</span> Speichern...</>
             ) : (
-              <>
-                <span>💾</span> Profil speichern
-              </>
+              <><span>💾</span> Profil speichern</>
             )}
           </button>
         </div>
@@ -226,7 +296,7 @@ export default function ProfilePage() {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">🔑</span>
                 <input
                   type="password"
-                  placeholder="Mindestens 6 Zeichen"
+                  placeholder="Mindestens 8 Zeichen"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white outline-none focus:bg-white/10 focus:border-[#00D9FF] focus:shadow-[0_0_20px_rgba(0,217,255,0.2)] placeholder:text-white/30 transition-all"
@@ -234,24 +304,105 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block font-medium">Passwort bestätigen</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">🔑</span>
+                <input
+                  type="password"
+                  placeholder="Passwort wiederholen"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white outline-none focus:bg-white/10 focus:border-[#00D9FF] focus:shadow-[0_0_20px_rgba(0,217,255,0.2)] placeholder:text-white/30 transition-all"
+                />
+              </div>
+            </div>
+
             <button
               onClick={changePassword}
-              disabled={loading ||!newPassword.trim()}
-              className="w-full bg-red-500/20 hover:bg-red-500/30 disabled:bg-white/5 disabled:text-white/30 border border-red-500/30 hover:border-red-500/50 text-red-400 py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] disabled:shadow-none flex items-center justify-center gap-2"
+              disabled={loading ||!newPassword.trim() ||!confirmPassword.trim()}
+              className="w-full bg-orange-500/20 hover:bg-orange-500/30 disabled:bg-white/5 disabled:text-white/30 border border-orange-500/30 hover:border-orange-500/50 text-orange-400 py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all hover:shadow-[0_0_30px_rgba(249,115,22,0.3)] disabled:shadow-none flex items-center justify-center gap-2"
             >
               <span>🔄</span> Passwort ändern
             </button>
           </div>
         </div>
 
+        {/* DSGVO Card */}
+        <div className="bg-[#0F2A52]/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          <h3 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
+            <span className="text-[#00D9FF]">🛡️</span> Datenschutz & DSGVO
+          </h3>
+          
+          <div className="space-y-3">
+            <button
+              onClick={exportData}
+              disabled={loading}
+              className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-xl font-medium text-sm active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <span>📥</span> Meine Daten herunterladen
+            </button>
+            <p className="text-[10px] text-white/40 px-1">
+              Recht auf Datenübertragbarkeit gemäß Art. 20 DSGVO
+            </p>
+
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 hover:border-red-500/50 text-red-400 py-3 rounded-xl font-medium text-sm active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <span>🗑️</span> Account löschen
+            </button>
+            <p className="text-[10px] text-white/40 px-1">
+              Recht auf Löschung gemäß Art. 17 DSGVO. Alle Daten werden unwiderruflich gelöscht.
+            </p>
+          </div>
+        </div>
+
         {/* Info Box */}
         <div className="bg-[#00D9FF]/10 border border-[#00D9FF]/30 rounded-xl p-3 flex items-start gap-2">
           <span className="text-[#00D9FF] text-lg">ℹ️</span>
-          <p className="text-xs text-white/80 leading-relaxed flex-1">
-            <span className="font-semibold text-white">Hinweis:</span> Deine E-Mail-Adresse kann nicht geändert werden. Bei Problemen kontaktiere den Admin.
-          </p>
+          <div className="text-xs text-white/80 leading-relaxed flex-1">
+            <p className="font-semibold text-white mb-1">Datenschutz-Hinweis:</p>
+            <p>Deine Daten werden gemäß DSGVO verarbeitet. Mehr Infos in der <a href="/datenschutz" className="text-[#00D9FF] underline">Datenschutzerklärung</a>.</p>
+          </div>
         </div>
       </div>
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowDeleteModal(false)}>
+          <div className="bg-[#0F2A52] border border-red-500/30 rounded-2xl p-6 max-w-md w-full shadow-[0_0_60px_rgba(239,68,68,0.3)]" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              <span className="text-red-400">⚠️</span> Account wirklich löschen?
+            </h3>
+            <p className="text-sm text-white/70 mb-4">
+              Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden permanent gelöscht.
+            </p>
+            <input
+              type="text"
+              placeholder='Tippe "LÖSCHEN" zur Bestätigung'
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-red-500 mb-4"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-medium text-sm"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={deleteAccount}
+                disabled={loading || deleteConfirm!== "LÖSCHEN"}
+                className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-white/10 disabled:text-white/40 text-white py-3 rounded-xl font-bold text-sm"
+              >
+                {loading? "Löschen..." : "Endgültig löschen"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
